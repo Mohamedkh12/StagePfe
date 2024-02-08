@@ -44,7 +44,7 @@ const Signin = ({navigation}) => {
                 onPress={() => setShowPassword(!showpassword)}
             />
           </View>
-          <TouchableOpacity style={styles.buttonwrapper} onPress={() => navigation.navigate('Home')}>
+          <TouchableOpacity style={styles.buttonwrapper} onPress={() => {}}>
             <Text style={styles.buttontext}>JE ME CONNECTE</Text>
           </TouchableOpacity>
           <View>

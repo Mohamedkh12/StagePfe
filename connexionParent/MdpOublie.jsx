@@ -30,10 +30,10 @@ const MdpOublie = ({navigation}) => {
                           value={identifiant}
                       />
                   </View>
-                  <TouchableOpacity style={styles.buttonwrapper} onPress={() => navigation.navigate('Home')}>
+                  <TouchableOpacity style={styles.buttonwrapper} onPress={() => {}}>
                       <Text style={styles.buttontext}>ENVOYER</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={()=>navigation.navigate('CreateCompte')}>
+                  <TouchableOpacity onPress={()=>{}}>
                       <Text style={styles.lientext}>Connexion</Text>
                   </TouchableOpacity>
               </View>

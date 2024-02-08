@@ -3,6 +3,7 @@ import MdpOublie from "./MdpOublie";
 import {NavigationContainer} from "@react-navigation/native";
 import {createNativeStackNavigator} from "@react-navigation/native-stack";
 import CreateCompte from "../InscriptionParent/CreateCompte";
+import AbonnementParent from "../InscriptionParent/AbonnementParent";
 
 
 const Stack=createNativeStackNavigator();
@@ -22,12 +23,18 @@ const SNSginIn = () => {
                                 headerShown: false,
                             }}
               />
-              <Stack.Screen name={"CreateCompte"}
-                            component={CreateCompte}
-                            options={{
-                                headerShown: false,
-                            }}
-              />
+              <Stack.Group>
+                  <Stack.Screen name={"CreateCompte"}
+                                component={CreateCompte}
+                                options={{
+                                    headerShown: false,
+                                }}
+                  />
+                  <Stack.Screen name={'AbonnementParent'}
+                                component={AbonnementParent}
+                                options={{headerShown:false}}
+                  />
+              </Stack.Group>
           </Stack.Navigator>
       </NavigationContainer>
   )

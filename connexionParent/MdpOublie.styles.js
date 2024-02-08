@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     },
     buttontext:{
         alignSelf:"center",
-        fontFamily:"meduim",
+        fontFamily:"medium",
         fontSize:18,
         color:'#242F65',
         lineHeight:22,
