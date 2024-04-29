@@ -25,6 +25,7 @@ const ListExercices = ({ route, navigation }) => {
                     }
                     return exercise;
                 }));
+                console.log(exercisesWithLocalImages);
                 setExercises(exercisesWithLocalImages);
             } else {
                 console.error("fetchExercisesByCategory: Erreur dans la réponse du serveur");
