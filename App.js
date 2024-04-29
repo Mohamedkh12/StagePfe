@@ -1,36 +1,59 @@
-import { StyleSheet, Text, View } from 'react-native';
-import {NavigationContainer} from "@react-navigation/native";
-import {createNativeStackNavigator} from "@react-navigation/native-stack";
-import {useFonts} from "expo-font";
+import React, { useEffect, useState, useCallback } from 'react';
+import { NavigationContainer } from "@react-navigation/native";
+import {createStackNavigator} from "@react-navigation/stack";
+import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
-import {useCallback} from "react";
 import SNSginIn from "./connexionParent/SNSginIn";
-import Signup from "./InscriptionParent/Signup";
-const Stack=createNativeStackNavigator();
-export default function App() {
-    const [fontsLoaded]=useFonts({
-        bold:require("./fonts/Montserrat-Bold.ttf"),
-        regular:require("./fonts/Montserrat-Regular.ttf"),
-        medium:require("./fonts/Montserrat-Medium.ttf"),
-        italic:require("./fonts/Montserrat-Italic.ttf"),
-    })
+import ButtomTabNavigation from "./navigation/ButtomTabNavigation";
+import AdminStack from "./EspaceAdmin/AdminStack";
+import ChildStack from "./EspaceChild/ChildStack";
+import {axiosProvider} from "./http/httpService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const Stack = createStackNavigator();
+
+const App = ({navigation}) => {
+    const [fontsLoaded] = useFonts({
+        'regular': require("./fonts/Montserrat-Regular.ttf"),
+        'bold': require("./fonts/Montserrat-Bold.ttf"),
+        'medium': require("./fonts/Montserrat-Medium.ttf"),
+        'italic': require("./fonts/Montserrat-Italic.ttf"),
+    });
 
     const onLayoutRootView = useCallback(async () => {
         if (fontsLoaded) {
+            console.log("fonts loaded");
             await SplashScreen.hideAsync();
         }
     }, [fontsLoaded]);
-    if(!fontsLoaded){
-        return null
-    }
-  return (
-      <NavigationContainer onLayout={onLayoutRootView}>
-          <Stack.Navigator>
-              <Stack.Screen name="SNSginIn" component={SNSginIn} options={{headerShown:false}}/>
-              <Stack.Screen name={"Signup"} component={Signup} options={{headerShown:false}} />
-          </Stack.Navigator>
-      </NavigationContainer>
 
-  );
+    useEffect(() => {
+        const loadFontsAndHideSplash = async () => {
+            if (fontsLoaded) {
+                console.log("fonts loaded");
+                await SplashScreen.hideAsync();
+            }
+        };
+
+        loadFontsAndHideSplash();
+    }, [fontsLoaded]);
+
+    if (!fontsLoaded) {
+        console.log("no fonts loaded");
+        return null;
+    }
+
+    return (
+        <NavigationContainer onLayout={onLayoutRootView}>
+            <Stack.Navigator initialRouteName={'SNSginIn'}>
+                <Stack.Screen name="SNSginIn" component={SNSginIn} options={{ headerShown: false }} />
+                <Stack.Screen name="ButtomTabNavigation" component={ButtomTabNavigation} options={{ headerShown: false }} />
+                <Stack.Screen name="AdminStack" component={AdminStack} options={{ headerShown: false }} />
+                <Stack.Screen name={"ChildStack"} component={ChildStack} options={{ headerShown: false }} />
+            </Stack.Navigator>
+
+        </NavigationContainer>
+    );
 }
 
+export default App;

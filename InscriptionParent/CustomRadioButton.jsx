@@ -2,20 +2,20 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import RadioGroup from 'react-native-radio-buttons-group';
 
-const CustomRadioButton = ({ onSelect ,onLabelSelect}) => {
+const CustomRadioButton = ({ onSelect, onLabelSelect }) => {
     const radioButtonsData = useMemo(() => ([
         {
-            id: 'option1',
+            id: '1',
             label: '1 compte enfant',
             selected: false,
         },
         {
-            id: 'option2',
+            id: '2',
             label: '2 comptes enfants',
             selected: false,
         },
         {
-            id: 'option3',
+            id: '3',
             label: '3 comptes enfants',
             selected: false,
         },
@@ -31,6 +31,7 @@ const CustomRadioButton = ({ onSelect ,onLabelSelect}) => {
         setRadioButtons(updatedRadioButtons);
         onLabelSelect(button.label)
         onSelect(button.id);
+
     };
 
     return (

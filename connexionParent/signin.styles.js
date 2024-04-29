@@ -2,16 +2,27 @@ import {StyleSheet} from "react-native";
 
 const styles = StyleSheet.create({
     container: {
-        flex:1,
+        flex: 1,
+        backgroundColor: '#FFFFFF',
+        width:"100%"
+    },
+    content:{
         flexDirection:"column",
         alignItems:"center",
-        backgroundColor: '#FFFFFF',
-        width:" 100%"
+    },
+    H1:{
+        fontFamily: 'bold',
+        fontSize: 26,
+        lineHeight: 32,
+        color: '#293772',
+        letterSpacing: 0,
+        textAlign: 'left',
+        opacity: 1,
     },
     imagecontainer:{
         position:"relative",
         marginTop: 70,
-        marginBottom: 80,
+        marginBottom: 60,
         width: 111,
         height: 89,
     },
