@@ -15,7 +15,7 @@ const ListExercices = ({ route, navigation }) => {
 
     const fetchExercisesByCategory = async () => {
         try {
-            const token = await AsyncStorage.getItem('TokenAdmin');
+            const token = await AsyncStorage.getItem('jwtToken');
             const response = await axiosProvider.getWithToken(`exercises/byCategory?category=${selectedCategory}`, token);
             if (response.data && Array.isArray(response.data)) {
                 const exercisesWithLocalImages = await Promise.all(response.data.map(async (exercise) => {
@@ -25,7 +25,7 @@ const ListExercices = ({ route, navigation }) => {
                     }
                     return exercise;
                 }));
-                console.log(exercisesWithLocalImages);
+
                 setExercises(exercisesWithLocalImages);
             } else {
                 console.error("fetchExercisesByCategory: Erreur dans la réponse du serveur");
