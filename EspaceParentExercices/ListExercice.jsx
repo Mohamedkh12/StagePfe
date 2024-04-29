@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, FlatList, Image, RefreshControl, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Image, RefreshControl, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { axiosProvider } from "../http/httpService";
 import styles from "../EspaceparentEnfants/styles";
-import { AntDesign, Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign ,MaterialCommunityIcons} from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import JWT from "expo-jwt";
 
