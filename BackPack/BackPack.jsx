@@ -65,8 +65,6 @@ const BackPack = ({ navigation }) => {
                     return exercise;
                 }));
                 setBackPackData(exercisesWithLocalImages);
-            } else {
-                console.error("getBackPack: Erreur dans la réponse du serveur");
             }
         } catch (error) {
             console.error(error.message);
@@ -138,14 +136,21 @@ const BackPack = ({ navigation }) => {
     return (
         <SafeAreaView style={styles.content}>
             <ChildrenList setSelectedChild={setSelectedChild} onSelectChildId={handleSelectChildId} />
-            <FlatList
-                data={backPackData}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id.toString()}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
-            />
+            {backPackData.length === 0 ? (
+                <View style={styles.errorContainer}>
+                    <Image source={require('../assets/images/folder-type.png')} style={styles.imageError} />
+                    <Text style={styles.errorText}>Aucun élément dans le backpack.</Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={backPackData}
+                    renderItem={renderItem}
+                    keyExtractor={(item) => item.id.toString()}
+                    refreshControl={
+                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                    }
+                />
+            )}
         </SafeAreaView>
     );
 

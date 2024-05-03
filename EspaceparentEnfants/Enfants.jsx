@@ -30,7 +30,6 @@ const Enfants = ({ navigation }) => {
                 }
                 return child;
             }));
-
             setChildrenData(childrenWithLocalImages);
         } catch (error) {
             console.error(typeof error === 'string' ? error : error.message);
@@ -114,7 +113,7 @@ const Enfants = ({ navigation }) => {
                             )}
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.buttom}>
+                    <TouchableOpacity style={styles.buttom} onPress={()=> navigation.navigate('ChildStack')}>
                         <Text style={styles.textbuttom}>ACCÉDER À SON COMPTE</Text>
                     </TouchableOpacity>
                 </View>

@@ -16,12 +16,11 @@ import {
 import styles from "../../BackPack/backPack.Style";
 import {AntDesign} from "@expo/vector-icons";
 
-const BackPackEnfant = ({navigation}) => {
+const BackPackEnfant = ({route,navigation}) => {
     const [refreshing, setRefreshing] = useState(false);
     const [backPackData, setBackPackData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-
     const getToken = async (key) => {
         return await AsyncStorage.getItem(key);
     };
@@ -32,11 +31,11 @@ const BackPackEnfant = ({navigation}) => {
 
     const getBackPack = async () => {
         try {
+            let response
             const token = await getToken('jwtToken');
             const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
-            const ChildId = decodedToken.sub;
-            const response = await axiosProvider.getWithToken(`backpack/getBackPackByChild/${ChildId}`, token);
-
+            const IdChild = decodedToken.sub;
+            response = await axiosProvider.getWithToken(`backpack/getBackPackByChild/${IdChild}`, token);
             if (response.data && Array.isArray(response.data[0]?.exercises)) {
                 const exercisesWithLocalImages = await Promise.all(response.data[0].exercises.map(async (exercise) => {
                     if (exercise.image) {
@@ -47,7 +46,7 @@ const BackPackEnfant = ({navigation}) => {
                 }));
                 setBackPackData(exercisesWithLocalImages);
             } else {
-                setError("Erreur dans la réponse du serveur");
+                setError("BackPack est vide");
             }
         } catch (error) {
             setError(error.message);
@@ -94,7 +93,7 @@ const BackPackEnfant = ({navigation}) => {
 
     if (isLoading) {
         return (
-            <View style={styles.loadingContainer}>
+            <View >
                 <ActivityIndicator size="large" color="#0000ff" />
             </View>
         );
@@ -103,6 +102,7 @@ const BackPackEnfant = ({navigation}) => {
     if (error) {
         return (
             <View style={styles.errorContainer}>
+                <Image source={require('../../assets/images/folder-type.png')} style={styles.imageError} />
                 <Text style={styles.errorText}>{error}</Text>
             </View>
         );
@@ -119,9 +119,8 @@ const BackPackEnfant = ({navigation}) => {
     return (
         <SafeAreaView  style={{ flex: 1, flexGrow: 1, backgroundColor: '#FFFFFF', marginBottom: 70 }}>
             <View>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', marginRight: 20, }}>
-                    <AntDesign name="left" selectable={true} style={{ color: '#242F65', fontSize: 26, marginTop: 15, marginLeft: 15, fontFamily: 'bold' }} />
-                    <Text style={{ fontFamily: 'bold', fontSize: 24, color: '#293772', lineHeight: 29, marginTop: 15, marginLeft: 3 }}>BackPack</Text>
+                <TouchableOpacity onPress={() => navigation.goBack()} >
+                    <Text style={{ fontFamily: 'bold', fontSize: 24, color: '#293772', lineHeight: 29, marginTop: 15, marginLeft: 40 }}>BackPack</Text>
                 </TouchableOpacity>
             </View>
             <FlatList

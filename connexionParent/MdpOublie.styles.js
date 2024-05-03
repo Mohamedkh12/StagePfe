@@ -87,6 +87,16 @@ const styles = StyleSheet.create({
         lineHeight:22,
         textDecorationLine:"underline",
         marginBottom:20
+    },
+    stopwatch:{
+        marginRight: 20,
+        marginVertical: 5,
+        marginHorizontal: 40,
+        marginBottom:20,
+        alignSelf:"center",
+        fontSize:30,
+        fontFamily:"regular",
+        color:"#2C2C2C",
     }
 
 })

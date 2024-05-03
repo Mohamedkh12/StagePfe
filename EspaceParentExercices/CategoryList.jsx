@@ -19,7 +19,7 @@ const CategoryList = ({ navigation, selectedChild }) => {
 
     const fetchCategories = async () => {
         try {
-            const token = await getToken('TokenAdmin');
+            const token = await getToken('jwtToken');
             const response = await axiosProvider.getWithToken('exercises/Categories', token);
             const categoriesData = response.data.categories;
 

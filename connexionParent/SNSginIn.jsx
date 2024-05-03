@@ -17,14 +17,14 @@ import EditExercice from "../EspaceAdmin/Exercices/EditExercice";
 import CategoryExercices from "../EspaceAdmin/Exercices/CategoryExercice";
 import {createStackNavigator} from "@react-navigation/stack";
 import ChildStack from "../EspaceChild/ChildStack";
-import React from "react";
+import React, {useState} from "react";
 import BackPackEnfant from "../EspaceChild/EspaceEnfantBackPack/BackPackEnfant";
 import ResetPassword from "./ResetPassword";
 import CreateCode from "./CreateCode";
 const Stack = createStackNavigator();
 
 const SNSginIn = () => {
-
+    const [bloquerRetour, setBloquerRetour] = useState(false);
     return(
           <NavigationContainer independent={true} initialRouteName={'Signin'} screenOptions={{ headerShown: false }}>
               <Stack.Navigator>
@@ -40,12 +40,30 @@ const SNSginIn = () => {
                   <Stack.Screen name="CreateCode" component={CreateCode}  options={{ headerShown: false }}/>
                   <Stack.Screen name="ResetPassword" component={ResetPassword}  options={{ headerShown: false }}/>
                   <Stack.Screen name="CreateCompte" component={CreateCompte}  options={{ headerShown: false }}/>
-                  <Stack.Screen name="AbonnementParent" component={AbonnementParent} options={{ headerShown: false }}/>
-                  <Stack.Screen name="CompteParent" component={CompteParent} options={{ headerShown: false }}/>
-                  <Stack.Screen name="Paiement" component={Paiement} options={{ headerShown: false }}/>
-                  <Stack.Screen name="MesEnfants" component={MesEnfants} options={{ headerShown: false }}/>
-                  <Stack.Screen name="InfosPersonnelles" component={InfosPersonnelles} options={{ headerShown: false }}/>
-                  <Stack.Screen name="ButtomTabNavigation" component={ButtomTabNavigation} options={{ headerShown: false }} />
+                  <Stack.Screen name="AbonnementParent" component={AbonnementParent} options={{
+                      headerShown: false,
+                      gestureEnabled: false, // Bloquer le retour par geste
+                       }}/>
+                  <Stack.Screen name="CompteParent" component={CompteParent} options={{
+                      headerShown: false,
+                      gestureEnabled: false,
+                  }}/>
+                  <Stack.Screen name="Paiement" component={Paiement}  options={{
+                      headerShown: false,
+                      gestureEnabled: false, // Bloquer le retour par geste
+                  }}/>
+                  <Stack.Screen name="MesEnfants" component={MesEnfants}  options={{
+                      headerShown: false,
+                      gestureEnabled: false,
+                  }}/>
+                  <Stack.Screen name="InfosPersonnelles" component={InfosPersonnelles}  options={{
+                      headerShown: false,
+                      gestureEnabled: false,
+                  }}/>
+                  <Stack.Screen name="ButtomTabNavigation" component={ButtomTabNavigation}  options={{
+                      headerShown: false,
+                      gestureEnabled: false,
+                  }}/>
                   <Stack.Screen name="UpdateCompteChild" component={UpdateCompteChild} options={{ headerShown: false }}/>
                   <Stack.Screen name="AddChild" component={AddChild} options={{ headerShown: false }}/>
               </Stack.Navigator>

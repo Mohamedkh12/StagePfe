@@ -15,52 +15,22 @@ const Signin = ({ navigation }) => {
   const [messageidentifiant, setMessageidentifiant] = useState('');
   const [serverError, setServerError] = useState('');
 
-  const login = () => {
-    let identifiantErrorState = false;
-    let passwordErrorState = false;
-    let messageidentifiantlState = '';
-    let messagePasswordState = '';
-
-    if (identifiant === "") {
-      identifiantErrorState = true;
-      messageidentifiantlState = "Email is required";
-    }
-
-    if (password === "") {
-      passwordErrorState = true;
-      messagePasswordState = "Password is required";
-    } else if (password.length < 8) {
-      passwordErrorState = true;
-      messagePasswordState = "Password must be at least 8 characters";
-    }
-
-    setidentifiantError(identifiantErrorState);
-    setMessageidentifiant(messageidentifiantlState);
-    setPasswordError(passwordErrorState);
-    setMessagePassword(messagePasswordState);
-
-    if (identifiantErrorState || passwordErrorState) {
-      return;
-    }
-
-    setIdentifiant('');
-    setPassword('');
-    setidentifiantError(false);
-    setPasswordError(false);
-    setMessageidentifiant('');
-    setMessagePassword('');
-  };
-
   const handleLogin = async () => {
     try {
+      setPasswordError(false);
+      setidentifiantError(false);
+      setMessagePassword('');
+      setMessageidentifiant('');
+      setServerError('');
+
       if (identifiant === 'admin' && password === 'admin') {
         const authAdmin = await axiosProvider.post('admin/loginAdmin',{
           username:'admin',
           password:'admin'
         });
-          await AsyncStorage.setItem('TokenAdmin', authAdmin.data.tokenAdmin);
-          console.log(authAdmin.data)
-          navigation.navigate('AdminStack');
+        await AsyncStorage.setItem('TokenAdmin', authAdmin.data.tokenAdmin);
+        console.log(authAdmin.data)
+        navigation.navigate('AdminStack');
         return;
       }
       const response = await axiosProvider.post('auth/login', {
@@ -78,16 +48,18 @@ const Signin = ({ navigation }) => {
         } else {
           console.error('Unknown user role');
         }
+        setIdentifiant('');
+        setPassword('');
       }
     } catch (error) {
-      console.error('Error during login:', error);
-      if (error.response) {
-        console.log('Server responded with:', error.response.data);
-        setServerError('Invalid credentials');
-      } else if (error.request) {
-        console.log('No response received:', error.request);
+      if (error.response && error.response.status === 401) {
+        setidentifiantError(true);
+        setMessageidentifiant("Email incorrect");
+        setPasswordError(true);
+        setMessagePassword("Mot de passe incorrect");
+        return;
       } else {
-        console.log('Error setting up request:', error.message);
+        setServerError('Email ou Mot de passe est incorrect.');
       }
     }
   };
@@ -107,7 +79,12 @@ const Signin = ({ navigation }) => {
                   keyboardType={"email-address"}
                   autoCompleteType={"email"}
                   placeholder={'Enter your email address'}
-                  onChange={(e) => setIdentifiant(e.nativeEvent.text)}
+                  onChange={(e) => {
+                    setIdentifiant(e.nativeEvent.text);
+                    setidentifiantError(false);
+                    setMessageidentifiant('');
+                    setServerError('');
+                  }}
                   value={identifiant}
               />
               {identifiantError && <Text style={{ color: 'red' }}>{messageidentifiant}</Text>}
@@ -122,7 +99,12 @@ const Signin = ({ navigation }) => {
                   autoComplete={"password"}
                   keyboardType={"visible-password"}
                   secureTextEntry={showpassword}
-                  onChange={(e) => setPassword(e.nativeEvent.text)}
+                  onChange={(e) => {
+                    setPassword(e.nativeEvent.text);
+                    setPasswordError(false);
+                    setMessagePassword('');
+                    setServerError('');
+                  }}
                   value={password}
               />
               <MaterialIcons

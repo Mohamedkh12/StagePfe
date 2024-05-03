@@ -1,16 +1,12 @@
-import React, {useCallback, useState} from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
-import { Ionicons, MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { Image } from 'react-native';
-import Statistiques from '../EspaceparentStats/Statistiques';
-import Recompenses from '../EspaceparentRécompenses/Recompenses';
 import Enfants from '../EspaceparentEnfants/Enfants';
 import ParentProfil from '../EspaceParentProfil/ParentProfil';
 import BackPack from '../BackPack/BackPack';
 import ParentExercices from '../EspaceParentExercices/ParentExercices';
 import ListExercices from "../EspaceParentExercices/ListExercice";
-import {useFocusEffect} from "@react-navigation/native";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -26,21 +22,9 @@ const ParentExercicesStack = () => {
 };
 
 const AppNavigator = () => {
-    const [showOptions, setShowOptions] = useState(false);
-
-    useFocusEffect(
-        useCallback(() => {
-            setShowOptions(false);
-        }, [])
-    );
-
-    const handleTabPress = () => {
-        setShowOptions(true);
-    };
 
     return (
         <Tab.Navigator
-            initialRouteName={showOptions ? "ParentExercicesStack" : "MainTabNavigation"}
             screenOptions={{
                 tabBarShowLabel: true,
                 tabBarHideOnKeyboard: true,
@@ -63,27 +47,7 @@ const AppNavigator = () => {
                     marginBottom: 10,
                 },
             }}>
-            <Tab.Screen
-                name="Recompenses"
-                component={Recompenses}
-                options={{
-                    title: 'Recompenses',
-                    tabBarIcon: () => (
-                        <Image
-                            source={require('../assets/images/icons8-récompense-24.png')}
-                            style={{ width: 24, height: 24, resizeMode: 'contain' }}
-                        />
-                    ),
-                }}
-            />
-            <Tab.Screen
-                name="Statistiques"
-                component={Statistiques}
-                options={{
-                    tabBarIcon: () => <Ionicons name="stats-chart" size={24} color="black" />,
-                    title: 'Stats',
-                }}
-            />
+
             <Tab.Screen
                 name="ParentExercicesStack"
                 component={ParentExercicesStack}
@@ -96,10 +60,15 @@ const AppNavigator = () => {
                         />
                     ),
                 }}
-                listeners={{
-                    tabPress: () => {
-                        setShowOptions(true);
-                    },
+            />
+            <Tab.Screen
+                name="BackPack"
+                component={BackPack}
+                options={{
+                    title: 'BackPack',
+                    tabBarIcon: () => (
+                        <MaterialIcons name="backpack" size={24} color="black" />
+                    ),
                 }}
             />
             <Tab.Screen

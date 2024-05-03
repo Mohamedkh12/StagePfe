@@ -67,6 +67,24 @@ const style = StyleSheet.create({
     icon: {
         marginLeft:30,
         marginTop: 25
+    },
+    errorContainer:{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    errorText:{
+        fontFamily: 'regular',
+        fontSize: 15,
+        color: '#2C2C2C',
+        lineHeight: 22,
+        marginBottom: 30
+    },
+    imageError: {
+        width: 100,
+        height: 100,
+        resizeMode: 'contain',
+        marginBottom: 20
     }
 })
 

@@ -1,48 +1,35 @@
-import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from "react-native";
-import styles from "./AddChildStyle"
-import {AntDesign, Entypo, MaterialIcons} from "@expo/vector-icons";
+import React, { useEffect, useState } from "react";
+import { Alert, Image, KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { AntDesign, Entypo, MaterialIcons } from "@expo/vector-icons";
 import RNPickerSelect from "react-native-picker-select";
-import React, {useEffect, useState} from "react";
 import * as ImagePicker from "expo-image-picker";
-import {Controller, useForm} from "react-hook-form";
-import { axiosProvider } from "../http/httpService";
 import * as ImageManipulator from "expo-image-manipulator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { axiosProvider } from "../http/httpService";
+import styles from "./AddChildStyle";
 
-const AddChild = ({navigation}) => {
-    const { control, handleSubmit,
-        formState: { errors }, reset } = useForm(
-        {
-            defaultValues: {
-                prenom: '',
-                classe: '',
-                image: null,
-                identifiant: '',
-                password: '',
-            },
-        }
-    );
+const AddChild = ({ navigation }) => {
+    const [identifiant, setIdentifiant] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [password, setPassword] = useState('');
     const [selectedImage, setSelectedImage] = useState(null);
     const [parentId, setParentId] = useState(null);
-
-
+    const [prenom, setPrenom] = useState('');
+    const [classe, setClasse] = useState('');
+    const [prenomError, setPrenomError] = useState('');
+    const [IdentifiantError, setIdentifiantError] = useState('');
+    const [classeError, setClasseError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    // Fonction pour ouvrir la bibliothèque d'images
     const openImagePicker = async () => {
+        // Gestion des permissions
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert('Permission Denied', 'Sorry, we need camera roll permission to upload images.');
                 return;
             }
+            // Lancer la bibliothèque d'images
             const result = await ImagePicker.launchImageLibraryAsync({
                 mediaTypes: ImagePicker.MediaTypeOptions.Images,
                 allowsEditing: true,
@@ -60,6 +47,7 @@ const AddChild = ({navigation}) => {
                 console.log("Selected Image URI is undefined");
                 return;
             }
+            // Manipuler l'image sélectionnée
             const resizedImage = await ImageManipulator.manipulateAsync(
                 result.assets[0].uri,
                 [{ resize: { width: 80, height: 80 } }],
@@ -73,15 +61,13 @@ const AddChild = ({navigation}) => {
             Alert.alert('Error', "Une erreur s'est produite lors du choix de l'image.");
         }
     };
+
+    // Fonction pour récupérer l'ID du parent depuis AsyncStorage
     const fetchParentId = async () => {
         try {
-            // Récupération du token depuis AsyncStorage
             const token = await AsyncStorage.getItem('jwtToken');
-
-            // Requête à l'API pour récupérer les données du parent
             const response = await axiosProvider.getWithToken('parents/parent', token);
-            console.log('Response from server:', response.data);
-            // Vérification de la réponse et extraction de l'ID du parent
+
             if (response && response.status === 200 && response.data.id) {
                 setParentId(response.data.id);
                 console.log('Parent ID:', response.data.id);
@@ -93,82 +79,121 @@ const AddChild = ({navigation}) => {
             Alert.alert('Error', 'Une erreur s\'est produite lors de la récupération des informations du parent.');
         }
     };
+
     useEffect(() => {
         fetchParentId();
     }, []);
 
-    const formDataToJson = (formData) => {
-        const jsonObject = {};
-        for (const [key, value] of formData._parts) {
-            jsonObject[key] = value;
+    // Fonction pour générer l'identifiant
+    const generateIdentifiant = (prenom, parentId) => {
+        if (parentId && prenom) {
+            return `${prenom}${parentId}`;
         }
-        return jsonObject;
+        return '';
     };
-    const onSubmit = async (data) => {
-        try {
-            const formData = new FormData();
-            formData.append('username', data.prenom);
-            formData.append('classe', data.classe);
-            formData.append('email', data.identifiant);
-            formData.append('password', data.password);
-            formData.append('id_parent', parentId);
-            formData.append('roleId', 3);
 
-            if (selectedImage) {
-                const imageUriParts = selectedImage.split('.');
-                const fileExtension = imageUriParts[imageUriParts.length - 1];
+    useEffect(() => {
+        setIdentifiant(generateIdentifiant(prenom, parentId));
+    }, [prenom, parentId]);
+    const resetForm = () => {
+        setSelectedImage(null);
+        setShowPassword(false);
+        setPrenom("");
+        setClasse(null);
+        setIdentifiant("");
+        setPassword("");
+    };
+    // Fonction pour soumettre le formulaire
+    const onSubmit = async () => {
+        // Réinitialiser les messages d'erreur
+        setPrenomError('');
+        setClasseError('');
+        setPasswordError('');
+        setIdentifiantError('')
+        let formIsValid = true;
 
-                formData.append('image', {
-                    uri: selectedImage,
-                    name: `image.${fileExtension}`,
-                    type: `image/${fileExtension}`,
-                });
-            }
+        // Vérifier les champs obligatoires
+        if (!prenom) {
+            setPrenomError('Le prénom est requis');
+            formIsValid = false;
+        }
+        if (!identifiant) {
+            setIdentifiantError('L\'identifiant est requis');
+            formIsValid = false;
+        }
+        if (!classe) {
+            setClasseError('La classe est requise');
+            formIsValid = false;
+        }
 
-            const token = await AsyncStorage.getItem('jwtToken');
+        if (!password) {
+            setPasswordError('Le mot de passe est requis');
+            formIsValid = false;
+        }
 
-            const response = await axiosProvider.post('parents/createChildren', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': `Bearer ${token}`
+        if (formIsValid) {
+            try {
+                // Création du FormData pour envoyer les données au serveur
+                const formData = new FormData();
+                formData.append('username', prenom);
+                formData.append('classe', classe);
+                formData.append('email', identifiant);
+                formData.append('password', password);
+                formData.append('id_parent', parentId);
+                formData.append('roleId', 3);
+                if (selectedImage) {
+                    const imageUriParts = selectedImage.split('.');
+                    const fileExtension = imageUriParts[imageUriParts.length - 1];
+
+                    formData.append('image', {
+                        uri: selectedImage,
+                        name: `image.${fileExtension}`,
+                        type: `image/${fileExtension}`,
+                    });
                 }
-            });
 
-            console.log(response.data);
+                const token = await AsyncStorage.getItem('jwtToken');
+                const response = await axiosProvider.post('parents/createChildren', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
 
-            if (response.status === 201) {
-                navigation.navigate('Enfants');
-                reset();
-            } else {
-                Alert.alert('Erreur', 'Échec de la création d\'un compte. Veuillez réessayer.');
+                console.log(response.data);
+
+                if (response.status === 201) {
+                    navigation.navigate('Enfants');
+                    resetForm();
+                } else {
+                    Alert.alert('Erreur', 'Échec de la création d\'un compte. Veuillez réessayer.');
+                }
+            } catch (error) {
+                console.error('Erreur lors de la création du compte :', error);
+
+                if (error.response && error.response.data) {
+                    console.error('Server response:', error.response.data);
+                }
+
+                Alert.alert('Erreur', 'Une erreur s\'est produite lors de la création du compte.');
             }
-        } catch (error) {
-            console.error('Erreur lors de la création du compte :', error);
-
-            if (error.response && error.response.data) {
-                console.error('Server response:', error.response.data);
-            }
-
-            Alert.alert('Erreur', 'Une erreur s\'est produite lors de la création du compte.');
         }
     };
 
-
-    return(
-        <KeyboardAvoidingView behavior="padding"  style={styles.container}>
-            <ScrollView >
+    return (
+        <KeyboardAvoidingView behavior="padding" style={styles.container}>
+            <ScrollView>
                 <View>
                     <View style={{ flexDirection: 'row' }}>
                         <TouchableOpacity onPress={() => navigation.goBack()} >
                             <AntDesign name="left" selectable={true} style={styles.iconLeft} />
                         </TouchableOpacity>
-
                         <Text style={styles.title}>Ajouter un compte enfant</Text>
                     </View>
                     <View>
                         <Text style={styles.text}>
                             Votre abonnement actuel vous permet d’avoir un seul compte enfant.
-                            Pour ajouter un compte enfant vous devez passé à l’abonnement supérieur et rajouter XX CHF.
+                            Pour ajouter un compte enfant vous devez passer à l’abonnement supérieur et rajouter XX CHF.
                         </Text>
                     </View>
                     <View style={styles.content}>
@@ -178,139 +203,91 @@ const AddChild = ({navigation}) => {
                         <View>
                             <Text style={styles.label}>Choisir la photo de votre enfant</Text>
                             {selectedImage ? (
-
                                 <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
                                     <Image source={{ uri: selectedImage }} style={styles.uploadedImage} />
                                 </TouchableOpacity>
                             ) : (
-                                    <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
-                                        <Entypo name="plus" style={styles.iconplus} />
-                                        <Text style={styles.textimage}>AJOUTER UNE IMAGE</Text>
-                                    </TouchableOpacity>
+                                <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
+                                    <Entypo name="plus" style={styles.iconplus} />
+                                    <Text style={styles.textimage}>AJOUTER UNE IMAGE</Text>
+                                </TouchableOpacity>
                             )}
                         </View>
 
                         {/* Prénom */}
-                        <Controller
-                            control={control}
-                            rules={{ required: 'Ce champ est requis' }}
-                            render={({ field }) => (
-                                <>
-                                    <Text style={styles.label}>Prénom*</Text>
-                                    <View style={styles.inputwrapper}>
-                                        <TextInput
-                                            placeholder="Prénom"
-                                            onBlur={field?.onBlur}
-                                            onChangeText={(value) => field?.onChange(value)}
-                                            value={field?.value}
-                                            style={styles.inputcontent}
-                                        />
-                                    </View>
-                                    {errors.prenom && <Text style={{ color: 'red' }}>{errors.prenom.message}</Text>}
-                                </>
-                            )}
-                            name="prenom"
-                        />
-
-                        {/* classe */}
-                        <View>
-                            <Controller
-                                control={control}
-                                render={({ field }) => (
-                                    <>
-                                        <View>
-                                            <Text  style={styles.label}>Classe*</Text>
-                                            <View style={styles.inputwrapper}>
-                                                <View style={styles.inputcontent}>
-                                                    <RNPickerSelect
-                                                        value={field.value}
-                                                        onValueChange={(value) => field.onChange(value)}
-                                                        placeholder={{ label: 'Choisir une classe', value: null }}
-                                                        items={[
-                                                            { label: '1/2', value: '1/2' },
-                                                            { label: '3/4', value: '3/4' },
-                                                            { label: '5/6', value: '5/6' },
-                                                            { label: '7/8', value: '7/8' },
-                                                            { label: '9/10', value: '9/10' },
-                                                        ]}
-                                                    />
-                                                </View>
-                                                <AntDesign name="down" size={24} color="black" />
-                                            </View>
-                                        </View>
-                                    </>
-                                )}
-                                name="classe"
-                                rules={{ required: 'Ce champ est requis' }}
+                        <Text style={styles.label}>Prénom*</Text>
+                        <View style={styles.inputwrapper}>
+                            <TextInput
+                                placeholder="Prénom"
+                                onChangeText={(value) => setPrenom(value)}
+                                value={prenom}
+                                style={styles.inputcontent}
                             />
-                            {errors.classe && <Text style={{ color: 'red' }}>{errors.classe.message}</Text>}
+                        </View>
+                        {prenomError ? <Text style={{ color: 'red' }}>{prenomError}</Text> : null}
+
+                        {/* Classe */}
+                        <View>
+                            <Text style={styles.label}>Classe*</Text>
+                            <View style={styles.inputwrapper}>
+                                <View style={styles.inputcontent}>
+                                    <RNPickerSelect
+                                        value={classe}
+                                        onValueChange={(value) => setClasse(value)}
+                                        placeholder={{ label: 'Choisir une classe', value: null }}
+                                        items={[
+                                            { label: '1/2', value: '1/2' },
+                                            { label: '3/4', value: '3/4' },
+                                            { label: '5/6', value: '5/6' },
+                                            { label: '7/8', value: '7/8' },
+                                            { label: '9/10', value: '9/10' },
+                                        ]}
+                                    />
+                                </View>
+                                <AntDesign name="down" size={24} color="black" />
+                            </View>
+                            {classeError ? <Text style={{ color: 'red' }}>{classeError}</Text> : null}
                         </View>
 
-                        {/* identifiant */}
-                        <Controller
-                            control={control}
-                            rules={{ required: 'Ce champ est requis' }}
-                            render={({ field }) => (
-                                <>
-                                    <Text style={styles.label}>Identifiant*</Text>
-                                    <View style={styles.inputwrapper}>
-                                        <TextInput
-                                            style={styles.inputcontent}
-                                            placeholder="Identifiant"
-                                            onBlur={field.onBlur}
-                                            onChangeText={(value) => field.onChange(value)}
-                                            value={field.value}
-                                        />
-                                    </View>
-                                </>
-                            )}
-                            name="identifiant"
-                        />
-                        {errors.identifiant && <Text style={{ color: 'red' }}>{errors.identifiant.message}</Text>}
-
+                        {/* Identifiant */}
+                        <Text style={styles.label}>Identifiant*</Text>
+                        <View style={styles.inputwrapper}>
+                            <TextInput
+                                style={styles.inputcontent}
+                                placeholder="Identifiant"
+                                onChangeText={(value) => setIdentifiant(value)}
+                                value={identifiant}
+                                editable={false}
+                            />
+                        </View>
+                        {IdentifiantError ? <Text style={{ color: 'red' }}>{IdentifiantError}</Text> : null}
                         {/* Mot de passe */}
                         <Text style={styles.label}>Mot de passe*</Text>
                         <View style={styles.passwordInputWrapper}>
-                            <Controller
-                                control={control}
-                                rules={{
-                                    required: 'Ce champ est requis.',
-                                    minLength: { value: 8, message: 'Le mot de passe doit avoir 8 caractères.' },
-                                }}
-                                render={({ field }) => (
-                                    <View style={styles.passwordInputContainer}>
-                                        <TextInput
-                                            placeholder="Password"
-                                            onBlur={field.onBlur}
-                                            onChangeText={(value) => field.onChange(value)}
-                                            value={field.value}
-                                            secureTextEntry={!showPassword}
-                                            inputMode="text"
-                                            autoCompleteType="password"
-                                            style={styles.passwordInput}
-                                            minLength={8}
-                                        />
-                                        <MaterialIcons
-                                            style={styles.passwordIcon}
-                                            name={showPassword ? 'visibility' : 'visibility-off'}
-                                            onPress={() => setShowPassword(!showPassword)}
-                                        />
-                                    </View>
-                                )}
-                                name="password"
+                            <TextInput
+                                placeholder="Password"
+                                onChangeText={(value) => setPassword(value)}
+                                secureTextEntry={!showPassword}
+                                inputMode="text"
+                                autoCompleteType="password"
+                                style={styles.passwordInput}
+                            />
+                            <MaterialIcons
+                                style={styles.passwordIcon}
+                                name={showPassword ? 'visibility' : 'visibility-off'}
+                                onPress={() => setShowPassword(!showPassword)}
                             />
                         </View>
-                        {errors.password && (
-                            <Text style={{ color: 'red' }}>{errors.password.message}</Text>
-                        )}
+                        {passwordError ? <Text style={{ color: 'red' }}>{passwordError}</Text> : null}
                     </View>
                 </View>
-                <TouchableOpacity style={styles.buttom}  onPress={handleSubmit(onSubmit)} >
+                {/* Bouton pour soumettre le formulaire */}
+                <TouchableOpacity style={styles.buttom} onPress={onSubmit} >
                     <Text style={styles.textbuttom}>ENREGISTRER</Text>
                 </TouchableOpacity>
             </ScrollView>
         </KeyboardAvoidingView>
     );
-}
+};
 
-export default AddChild
+export default AddChild;

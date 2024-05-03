@@ -1,0 +1,6 @@
+//.)admin nzid email bech nraka7le forgotpassword
+//.)ine lezim ikoun email valide
+//.)na7i les icons zeydin
+//.)identifiant mta3 child yetktib automatique (prenon+id parent)
+//.)logout
+//.)taswira matkounich obligatoire

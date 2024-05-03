@@ -9,7 +9,10 @@ import {useRoute} from "@react-navigation/native";
 import ProgressStepsScreen from "./ProgressStepsScreen";
 
 const Paiement = forwardRef((props, ref) => {
-    const { control, handleSubmit, formState: { errors } } = useForm({
+    const { control,
+        reset,
+        handleSubmit,
+        formState: { errors } } = useForm({
         defaultValues: {
             ntc: '',
             nc: '',
@@ -24,8 +27,8 @@ const Paiement = forwardRef((props, ref) => {
 
 
     const onSubmit = (newData) => {
-        console.log("Données du formulaire:", newData);
         navigation.navigate('MesEnfants' );
+        reset()
     };
 
     const onChange = (event, selectedDate) => {

@@ -1,20 +1,50 @@
-import {SafeAreaView, Text, TextInput, View, Image, TouchableOpacity, Alert, ScrollView} from "react-native";
-import React, {useState} from "react";
-import {axiosProvider} from "../http/httpService";
+import React, { useState, useEffect, useRef } from "react";
+import { SafeAreaView, Text, TextInput, View, Image, TouchableOpacity, Alert, ScrollView } from "react-native";
+import { axiosProvider } from "../http/httpService";
 import styles from "./MdpOublie.styles";
 
-const CreateCode = ({route,navigation}) => {
+const CreateCode = ({ route, navigation }) => {
     const [code, setCode] = useState('');
-    const {parentEmail} = route.params;
-    const handelForgotPassword = async () => {
+    const [isResendButtonDisabled, setIsResendButtonDisabled] = useState(true);
+    const [remainingTime, setRemainingTime] = useState(60);
+    const isMounted = useRef(false);
+    const intervalRef = useRef(null); // Référence à l'intervalle
+
+    const { parentEmail } = route.params;
+
+    useEffect(() => {
+        isMounted.current = true;
+        intervalRef.current = setInterval(() => {
+            setRemainingTime(prevTime => {
+                if (prevTime > 0) {
+                    return prevTime - 1;
+                } else {
+                    setIsResendButtonDisabled(false);
+                    clearInterval(intervalRef.current); // Supprimer l'intervalle
+                    return prevTime;
+                }
+            });
+        }, 1000);
+
+        return () => {
+            clearInterval(intervalRef.current); // Supprimer l'intervalle lors du démontage
+            isMounted.current = false;
+        };
+    }, []);
+
+    const handleTimerFinish = () => {
+        setIsResendButtonDisabled(false);
+    };
+
+    const handleForgotPassword = async () => {
         try {
             const response = await axiosProvider.post('mailer/check-code', {
-                code:code
+                code: code
             });
             setCode(String(response.data.code));
-            if (response.data.success===true) {
+            if (response.data.success === true) {
                 navigation.navigate('ResetPassword');
-                setCode('')
+                setCode('');
             } else {
                 Alert.alert("Code invalide ou expiré");
             }
@@ -29,12 +59,28 @@ const CreateCode = ({route,navigation}) => {
             const response = await axiosProvider.post('mailer/resend-code', {
                 email: parentEmail
             });
-            setCode(String(response.data.code));
-            console.log(response.data);
+            if (response.data.success === true) {
+                setCode(String(response.data.result.code));
+                console.log(response.data);
+                setIsResendButtonDisabled(true);
+                setRemainingTime(60);
+            } if (response.data.success === false) {
+                Alert.alert('Vous avez atteint le nombre maximal de tentatives d\'envoi. Veuillez attendre 24 heures avant de réessayer.');
+            }
+            else {
+                Alert.alert('Erreur', response.data.error || 'L\'e-mail spécifié n\'existe pas.');
+            }
         } catch (error) {
             console.log(error);
         }
     };
+
+    // Supprimer l'intervalle lors de la navigation vers ResetPassword
+    useEffect(() => {
+        return () => {
+            clearInterval(intervalRef.current);
+        };
+    }, []);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -46,7 +92,7 @@ const CreateCode = ({route,navigation}) => {
                     <View style={{ marginTop: 20 }}>
                         <Text style={styles.H1}>Confirmer votre Compte</Text>
                     </View>
-                    <View style={{marginTop: 20}}>
+                    <View style={{ marginTop: 20 }}>
                         <View>
                             <Text style={styles.text}>Entrer votre code*</Text>
                             <TextInput
@@ -58,16 +104,25 @@ const CreateCode = ({route,navigation}) => {
                             />
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.buttonwrapper} onPress={handelForgotPassword}>
+                    <TouchableOpacity style={styles.buttonwrapper} onPress={handleForgotPassword}>
                         <Text style={styles.buttontext}>ENVOYER</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.buttonwrapper} onPress={resetCode}>
-                        <Text style={styles.buttontext}>Code non recu ?</Text>
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'row', marginTop: 20, justifyContent: 'space-between' }}>
+                        <TouchableOpacity onPress={resetCode} disabled={isResendButtonDisabled}>
+                            <Text style={[styles.buttontext, isResendButtonDisabled && { color: 'grey' }]}>Code non recu ?</Text>
+                        </TouchableOpacity>
+                        <View>
+                            {isMounted.current && (
+                                <Text style={{ color: '#2C2C2C', fontWeight: 'bold',fontSize: 20 ,marginHorizontal: 27 }}>
+                                    {remainingTime > 0 ? `00:${remainingTime < 10 ? '0' + remainingTime : remainingTime}` : '00:00'}
+                                </Text>
+                            )}
+                        </View>
+                    </View>
                 </View>
             </ScrollView>
         </SafeAreaView>
     )
 }
 
-export default CreateCode
+export default CreateCode;

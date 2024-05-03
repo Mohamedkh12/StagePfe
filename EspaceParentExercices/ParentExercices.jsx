@@ -51,9 +51,6 @@ const ParentExercices = ({ navigation }) => {
         <SafeAreaView style={styles.container}>
             <View style={localStyles.rowContainer}>
                 <ChildrenList setSelectedChild={setSelectedChild} onSelectChildId={handleSelectChildId} />
-                <TouchableOpacity style={localStyles.backPackButton} onPress={() => navigation.navigate('BackPack')}>
-                    <Text style={localStyles.textbuttom}>Back Pack</Text>
-                </TouchableOpacity>
             </View>
             <CategoryList navigation={navigation} selectedChild={selectedChild} />
         </SafeAreaView>

@@ -1,10 +1,13 @@
 import React, { useEffect, useState} from 'react';
-import {  Text, TextInput, TouchableOpacity, View, Image, SafeAreaView, Alert } from 'react-native';
+import {Text, TextInput, TouchableOpacity, View, Image, SafeAreaView, Alert, KeyboardAvoidingView} from 'react-native';
 import { Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
 import styles from './mesEnfants.styles';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import JWT from "expo-jwt";
+import {axiosProvider} from "../http/httpService";
 
 
 const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, onImageSelect }) => {
@@ -15,12 +18,15 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
     const [motDePasse, setMotDePasse] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-
+    const getToken = async (key) => {
+        return await AsyncStorage.getItem(key);
+    };
     useEffect(() => {
         if (isDataSubmitted) {
             handleAddEnfant();
         }
     }, [isDataSubmitted]);
+
     const handleAddEnfant = async () => {
         const childData = {
             image: selectedImage,
@@ -36,10 +42,21 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
             Alert.alert('Error', 'An error occurred while saving child data.');
         }
     };
-
+    const checkChildExists = async (prenom) => {
+            if (prenom) {
+                const token = await getToken('jwtToken');
+                const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
+                const parentId = decodedToken.sub;
+                setIdentifiant(`${prenom}${parentId}`);
+            }else{
+                setIdentifiant('');
+            }
+    };
+    useEffect(() => {
+        checkChildExists(prenom);
+    }, [prenom]);
 
     const openImagePicker = async () => {
-        try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
                 Alert.alert('Permission Denied', 'Sorry, we need camera roll permission to upload images.');
@@ -71,10 +88,6 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
             setSelectedImage(resizedImage.uri);
             onImageSelect(resizedImage.uri);
             console.log("Selected Image:", resizedImage.uri);
-        } catch (error) {
-            console.error('Error picking image: ', error);
-            Alert.alert('Error', "Une erreur s'est produite lors du choix de l'image.");
-        }
     };
 
     const getTitleText = () => {
@@ -89,7 +102,7 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
 
     return (
 
-            <SafeAreaView>
+            <KeyboardAvoidingView >
                 <View style={styles.content}>
                     <View>
                         <Text style={styles.h2}>{getTitleText()}</Text>
@@ -113,9 +126,7 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
                         <Text style={styles.label}>Prénom*</Text>
                         <TextInput
                             placeholder="Prénom"
-                            onChangeText={(value) => {
-                                setPrenom(value);
-                            }}
+                            onChangeText={(value) => setPrenom(value)}
                             value={prenom}
                             inputMode="text"
                             autoComplete="cc-family-name"
@@ -156,10 +167,8 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
                         <TextInput
                             style={styles.inputcontent}
                             placeholder="Identifiant"
-                            onChangeText={(value) => {
-                                setIdentifiant(value);
-                            }}
                             value={identifiant}
+                            editable={false}
                         />
                         {errorMessages && errorMessages.identifiant && <Text style={{ color: 'red' }}>{errorMessages.identifiant}</Text>}
                     </View>
@@ -190,7 +199,7 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
 
                     </View>
                 </View>
-            </SafeAreaView>
+            </KeyboardAvoidingView>
     );
 };
 

@@ -9,7 +9,7 @@ import {axiosProvider} from "../http/httpService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import JWT, { SupportedAlgorithms } from 'expo-jwt';
 const InfosPersonnelles = (({ navigation }) => {
-    const {control:control, handleSubmit:handelsubmit, formState: {errors}} = useForm(
+    const {control:control,reset, handleSubmit:handelsubmit, formState: {errors}} = useForm(
         {
             defaultValues: {
                 nom: '',

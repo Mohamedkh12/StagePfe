@@ -1,14 +1,5 @@
-import React, { useState } from "react";
-import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    ScrollView,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from "react-native";
+import React, {useEffect, useState} from "react";
+import {Alert, Image, KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View} from "react-native";
 import styles from "./updateStyle"
 import { AntDesign, Entypo, MaterialIcons } from "@expo/vector-icons";
 import RNPickerSelect from "react-native-picker-select";
@@ -26,7 +17,9 @@ const UpdateCompteChild = ({ route, navigation }) => {
     const [classe, setClasse] = useState(null);
     const [identifiant, setIdentifiant] = useState("");
     const [password, setPassword] = useState("");
-    const [childrenData, setChildrenData] = useState([]);
+    const getToken = async (key) => {
+        return await AsyncStorage.getItem(key);
+    };
     const openImagePicker = async () => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -114,7 +107,19 @@ const UpdateCompteChild = ({ route, navigation }) => {
             Alert.alert('Erreur', 'Une erreur s\'est produite lors de la mise à jour du compte.');
         }
     };
-
+    const checkChildExists = async (prenom) => {
+        if (prenom) {
+            const token = await getToken('jwtToken');
+            const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
+            const parentId = decodedToken.sub;
+            setIdentifiant(`${prenom}${parentId}`);
+        }else{
+            setIdentifiant('');
+        }
+    };
+    useEffect(() => {
+        checkChildExists(prenom);
+    }, [prenom]);
     return (
         <KeyboardAvoidingView behavior="padding" enabled >
             <ScrollView style={styles.container}>
@@ -182,8 +187,8 @@ const UpdateCompteChild = ({ route, navigation }) => {
                                 <TextInput
                                     style={styles.inputcontent}
                                     placeholder="Identifiant"
-                                    onChange={(e) => setIdentifiant(e.nativeEvent.text)}
                                     value={identifiant}
+                                    editable={false}
                                 />
                             </View>
                         </View>

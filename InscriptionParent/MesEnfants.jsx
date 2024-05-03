@@ -7,6 +7,7 @@ import CustomHeader from './CustomHeader';
 import { axiosProvider } from '../http/httpService';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import JWT from "expo-jwt";
+import ProgressStepsScreen from "./ProgressStepsScreen";
 
 
 const MesEnfants = ({ navigation }) => {
@@ -25,7 +26,6 @@ const MesEnfants = ({ navigation }) => {
     }, [children]);
 
     const handleImageSelect = ( uri) => {
-        console.log("Selected Image URI:", uri);
         setSelectedImage(uri)
     };
     const formDataToJson = (formData) => {
@@ -46,98 +46,101 @@ const MesEnfants = ({ navigation }) => {
             const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
             const parentId = decodedToken.sub;
 
-            const responses = await Promise.all(children.map(async (childData, index) => {
-                try {
-                    const formData = new FormData();
+            const requests = [];
 
-                    formData.append('username', childData.prenom);
-                    formData.append('classe', childData.classe);
-                    formData.append('email', childData.identifiant);
-                    formData.append('password', childData.motDePasse);
-                    formData.append('id_parent', parentId);
-                    formData.append('roleId', 3);
-                    if (selectedImage) {
-                        const imageUriParts = selectedImage.split('.');
-                        const fileExtension = imageUriParts[imageUriParts.length - 1];
+            for (let i = 0; i < children.length; i++) {
+                const childData = children[i];
+                if (!childData || !childData.prenom || !childData.classe || !childData.identifiant || !childData.motDePasse) {
+                    continue; // Passer à l'enfant suivant
+                }
 
-                        formData.append('image', {
-                            uri: selectedImage,
-                            name: `image.${fileExtension}`,
-                            type: `image/${fileExtension}`,
-                        });
-                    }
-                    const jsonData = formDataToJson(formData);
-                    console.log("Sending request for child:", index + 1, jsonData);
+                const formData = new FormData();
 
-                    const response = await axiosProvider.post('parents/createChildren', formData, {
+                formData.append('username', childData.prenom);
+                formData.append('classe', childData.classe);
+                formData.append('email', childData.identifiant);
+                formData.append('password', childData.motDePasse);
+                formData.append('id_parent', parentId);
+                formData.append('roleId', 3);
+
+                if (childData.image) {
+                    const imageUriParts = childData.image.split('.');
+                    const fileExtension = imageUriParts[imageUriParts.length - 1];
+
+                    formData.append('image', {
+                        uri: childData.image,
+                        name: `image.${fileExtension}`,
+                        type: `image/${fileExtension}`,
+                    });
+                } else {
+                    formData.append('image', null);
+                }
+
+                requests.push(
+                    axiosProvider.post('parents/createChildren', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
                             'Authorization': `Bearer ${token}`
                         }
-                    });
+                    }).then(response => response.data)
+                );
+            }
 
-                    console.log("Response received for child:", index + 1, response.data);
+            const responses = await Promise.all(requests);
+            console.log('Responses from server:', responses);
 
-                    handleChildDataChange(index + 1, response.data, childData.image);
-
-                    return response;
-                } catch (error) {
-                    console.error(`Error creating child ${index + 1}:`, error);
-                    return null;
-                }
-            }));
-
-            // Vérifiez si toutes les réponses sont reçues et qu'aucune d'entre elles n'est null
             if (responses.every(response => response !== null)) {
-                global.childId = responses.map(response => response.data.id);
-                console.log("Responses:", responses);
                 return responses;
             } else {
                 throw new Error('Failed to create one or more children');
             }
-
         } catch (error) {
             console.error("Error creating children:", error);
             throw error;
         }
     };
 
-
     const handleChildDataChange = (index, childData, imageUri) => {
         setChildren((prevChildren) => {
             const updatedChildren = [...prevChildren];
             updatedChildren[index - 1] = { ...childData, image: imageUri };
-            console.log("Updated children list:", updatedChildren);
             return updatedChildren;
         });
     };
-
+    useEffect(() => {
+        // Vérifier si c'est la première exécution pour éviter les appels inutiles à l'initialisation
+        if (children.length > 0) {
+            handleNextButton(); // Appeler handleNextButton lorsque children est mis à jour
+        }
+    }, [children]);
 
     const handleNextButton = async () => {
         try {
             const responses = await handleCreateChildren();
-            console.log('Responses from server:', responses);
+            const updatedChildren = responses.map(response => response.data);
+            setChildren(updatedChildren);
 
-            // Vérifiez si toutes les réponses sont reçues et qu'aucune d'entre elles n'est undefined
-            if (responses.every(response => response && response.data)) {
-                navigation.navigate('InfosPersonnelles');
-                setIsDataSubmitted(true)
-            } else {
-                Alert.alert('Error', 'Failed to create child. Please try again later.');
-            }
+            // Naviguer vers la page suivante une fois que les enfants ont été créés
+            navigation.navigate('InfosPersonnelles');
+            setIsDataSubmitted(true);
         } catch (error) {
-            console.error("Error creating child:", error);
+            console.error("Error creating children:", error);
             Alert.alert('Error', 'Failed to create child. Please try again later.');
         }
     };
 
 
+    const steps = ['Abonnement', 'Compte parent', 'Paiement', 'Mes enfants', 'Mes infos personnelles'];
+    const currentStep =3;
 
     return (
         <KeyboardAvoidingView>
             <SafeAreaView style={styles.container}>
                 <ScrollView>
+                <View>
                     <CustomHeader />
+                    <ProgressStepsScreen steps={steps} currentStep={currentStep} />
+                </View>
                     <Text style={styles.h1}>Mes enfants</Text>
                     <Text style={styles.text}>
                         Pour se connecter à la plateforme, votre enfant aura besoin de son identifiant et mot de passe.

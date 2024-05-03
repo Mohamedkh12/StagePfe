@@ -8,7 +8,6 @@ import styles from './CompteParent.styles';
 import ProgressStepsScreen from "./ProgressStepsScreen";
 import {axiosProvider} from "../http/httpService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import JWT from "expo-jwt";
 
 const CompteParent = ({ route, navigation }) => {
     const { roleId } = route.params;
@@ -16,6 +15,7 @@ const CompteParent = ({ route, navigation }) => {
         control,
         handleSubmit,
         setValue,
+        reset,
         formState: { errors },
     } = useForm({
         defaultValues: {
@@ -29,24 +29,33 @@ const CompteParent = ({ route, navigation }) => {
 
     const [showPassword, setShowPassword] = useState(false);
     const [isChecked, setChecked] = useState(false);
+    const [emailError, setEmailError] = useState('');
 
     const onSubmit = async (data) => {
         if (!data.acceptTerms) {
             alert('Vous devez accepter les conditions générales de vente.');
         } else {
             try {
-                const user = await createParentAccount(data);
-                if (user.status === 400) {
-                    Alert.alert('Erreur', 'Cet utilisateur existe déjà.');
-                }
-                if (user.status === 201) {
-                    navigation.navigate('Paiement');
+                const isEmailValid = await verifyEmail(data.email);
+                console.log('isEmailValid:', data.email);
+                if (isEmailValid) {
+                    const user = await createParentAccount(data);
+                    if (user.status === 400) {
+                        Alert.alert('Erreur', 'Cet utilisateur existe déjà.');
+                    }
+                    if (user.status === 201) {
+                        navigation.navigate('Paiement');
+                        reset()
+                    }
+                } else {
+                    Alert.alert('Erreur', 'L\'email est invalide.');
                 }
             } catch (error) {
                 console.error('Erreur lors de la création du compte parent :', error);
             }
         }
     };
+
 
     const createParentAccount = async (data) => {
         try {
@@ -66,6 +75,31 @@ const CompteParent = ({ route, navigation }) => {
             throw error;
         }
     };
+    const verifyEmail = async (email) => {
+        try {
+            const response = await axiosProvider.post('parents/verifiyEmail', {
+                email: email
+            });
+
+            if (response.data === true) {
+                return true;
+            } else if(response.data.message === "Invalid domain") {
+                setEmailError('L\'email n\'est pas valide.');
+                return false;
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 404) {
+                setEmailError('L\'URL de vérification de l\'email est incorrecte.');
+            } else if (error.response && error.response.data && error.response.data.message) {
+                setEmailError(error.response.data.message);
+            } else {
+                setEmailError('Une erreur s\'est produite lors de la vérification de l\'email.');
+            }
+            console.error('Erreur lors de la vérification de l\'email :', error);
+            throw error;
+        }
+    };
+
 
 
     const steps = ['Abonnement', 'Compte parent', 'Paiement', 'Mes enfants', 'Mes infos personnelles'];
@@ -120,13 +154,7 @@ const CompteParent = ({ route, navigation }) => {
                                     {/* Email */}
                                     <Controller
                                         control={control}
-                                        rules={{
-                                            required: 'Ce champ est requis.',
-                                            pattern: {
-                                                value: /^\S+@\S+$/i,
-                                                message: 'Email invalide.',
-                                            },
-                                        }}
+                                        rules={{required: 'Ce champ est requis.'}}
                                         render={({ field }) => (
                                             <>
                                                 <Text style={styles.label}>Email*</Text>
@@ -145,6 +173,7 @@ const CompteParent = ({ route, navigation }) => {
                                                 {errors.email && (
                                                     <Text style={{ color: 'red' }}>{errors.email.message}</Text>
                                                 )}
+                                                {emailError && <Text style={{ color: 'red' }}>{emailError}</Text>}
                                             </>
                                         )}
                                         name="email"
