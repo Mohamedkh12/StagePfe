@@ -15,7 +15,7 @@ const MdpOublie = ({ navigation }) => {
             }if(response.data.success===false){
                 Alert.alert('Vous avez atteint le nombre maximal de tentatives d\'envoi. Veuillez attendre 24 heures avant de réessayer.');
             }
-            if(response.data.message==="Failed to send password reset email"){
+            if(response.data.message===false){
                 Alert.alert('Erreur', 'L\'e-mail spécifié n\'existe pas');
             }
         } catch (error) {
@@ -54,7 +54,7 @@ const MdpOublie = ({ navigation }) => {
                     <TouchableOpacity style={styles.buttonwrapper} onPress={handleForgotPassword} >
                         <Text style={styles.buttontext}>ENVOYER</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => { }}>
+                    <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
                         <Text style={styles.lientext}>Connexion</Text>
                     </TouchableOpacity>
 

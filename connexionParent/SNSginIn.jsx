@@ -50,19 +50,17 @@ const SNSginIn = () => {
                   }}/>
                   <Stack.Screen name="Paiement" component={Paiement}  options={{
                       headerShown: false,
-                      gestureEnabled: false, // Bloquer le retour par geste
+                      // Bloquer le retour par geste
                   }}/>
                   <Stack.Screen name="MesEnfants" component={MesEnfants}  options={{
                       headerShown: false,
-                      gestureEnabled: false,
+
                   }}/>
                   <Stack.Screen name="InfosPersonnelles" component={InfosPersonnelles}  options={{
                       headerShown: false,
-                      gestureEnabled: false,
                   }}/>
                   <Stack.Screen name="ButtomTabNavigation" component={ButtomTabNavigation}  options={{
                       headerShown: false,
-                      gestureEnabled: false,
                   }}/>
                   <Stack.Screen name="UpdateCompteChild" component={UpdateCompteChild} options={{ headerShown: false }}/>
                   <Stack.Screen name="AddChild" component={AddChild} options={{ headerShown: false }}/>

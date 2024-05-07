@@ -68,7 +68,7 @@ const AddChild = ({ navigation }) => {
             const token = await AsyncStorage.getItem('jwtToken');
             const response = await axiosProvider.getWithToken('parents/parent', token);
 
-            if (response && response.status === 200 && response.data.id) {
+            if (response  && response.data.id) {
                 setParentId(response.data.id);
                 console.log('Parent ID:', response.data.id);
             } else {
@@ -160,9 +160,7 @@ const AddChild = ({ navigation }) => {
                     }
                 });
 
-                console.log(response.data);
-
-                if (response.status === 201) {
+                if (response && response.status === 201) {
                     navigation.navigate('Enfants');
                     resetForm();
                 } else {

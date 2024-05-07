@@ -1,11 +1,10 @@
 import React, {forwardRef, useEffect, useState} from "react";
-import { KeyboardAvoidingView, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View, Platform,Pressable } from "react-native";
 import CustomHeader from "./CustomHeader";
 import { AntDesign } from "@expo/vector-icons";
 import { Controller, useForm } from 'react-hook-form';
-import RNDateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker from '@react-native-community/datetimepicker';
 import styles from "./Paiement.styles";
-import {useRoute} from "@react-navigation/native";
 import ProgressStepsScreen from "./ProgressStepsScreen";
 
 const Paiement = forwardRef((props, ref) => {
@@ -16,7 +15,7 @@ const Paiement = forwardRef((props, ref) => {
         defaultValues: {
             ntc: '',
             nc: '',
-            date: new Date(),
+            date: new Date().toISOString().split('T')[0],
             cvc: '',
         }
     });
@@ -24,26 +23,28 @@ const Paiement = forwardRef((props, ref) => {
 
     const { navigation } = props;
     const [date, setDate] = useState(new Date());
-
+    const [showPicker, setShowPicker] = useState(false);
 
     const onSubmit = (newData) => {
         navigation.navigate('MesEnfants' );
         reset()
     };
 
-    const onChange = (event, selectedDate) => {
-        console.log("Event:", event);
-        console.log("Selected Date:", selectedDate);
-
-        const currentDate = selectedDate || date;
-
-        // on cancel set date value to previous date
-        if (event?.type === 'dismissed') {
-            setDate(date);
-            return;
+    const toggleDatePicker = () => {
+        setShowPicker(!showPicker);
+    }
+    const onChange = ({type}, selectedDate) => {
+        if(type === 'set'){
+            const currentDate = selectedDate;
+            setDate(currentDate);
+        }if(Platform.OS==='android'){
+            toggleDatePicker()
         }
-        setDate(currentDate);
-    };
+        else{
+            toggleDatePicker();
+        }
+
+    }
     const steps = ['Abonnement', 'Compte parent', 'Paiement', 'Mes enfants', 'Mes infos personnelles'];
     const currentStep =2;
     return (
@@ -123,18 +124,33 @@ const Paiement = forwardRef((props, ref) => {
                                 <>
                                     <Text style={styles.label}>Date d’expiration*</Text>
                                     <View style={{ alignSelf: 'flex-start' }}>
-                                        <RNDateTimePicker
-                                            value={date}
-                                            mode="date"
-                                            display={"default"}
-                                            onChange={(event, selectedDate) => {
-                                                const currentDate = selectedDate || date;
-                                                setDate(currentDate);
-                                                field.onChange(currentDate);
-                                            }}
-                                            style={styles.datePicker}
-                                            onBlur={field.onBlur}
-                                        />
+                                        {
+                                            showPicker &&(
+                                                <DateTimePicker
+                                                    value={date}
+                                                    mode="date"
+                                                    display={"dspinner"}
+                                                    onChange={onChange}
+                                                    style={styles.datePicker}
+                                                    onBlur={field.onBlur}
+                                                />
+                                            )
+                                        }
+                                        {
+                                            !showPicker && (
+                                                <Pressable style={styles.date} onPress={toggleDatePicker}>
+                                                    <TextInput
+                                                        {...field}
+                                                        placeholder={'date d\'expiration'}
+                                                        value={new Date(date).toLocaleDateString()}
+                                                        onBlur={field.onBlur}
+                                                        onChangeText={(value)=>field.onChange(value)}
+                                                        editable={false}
+                                                        onPressIn={toggleDatePicker}
+                                                    />
+                                                </Pressable>
+                                            )
+                                        }
                                     </View>
                                     {errors.date && <Text style={{ color: 'red' }}>{errors.date.message}</Text>}
                                 </>

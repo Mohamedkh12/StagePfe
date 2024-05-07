@@ -1,46 +1,48 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 
 const styles = StyleSheet.create({
-    container:{
-        width: "100%",
-        height: "100%",
+    container: {
         backgroundColor: '#FFFFFF',
     },
     content: {
         flex: 1,
         flexDirection: 'column',
-        width: 356,
-        height: '100%',
+        width: '90%',
+        maxWidth: 400,
+        alignSelf: 'center',
         backgroundColor: '#D8F6F5',
         borderRadius: 23,
-        opacity: 1,
         marginTop: 20,
         padding: 20,
-        alignItems: 'center',
-        alignSelf: 'center',
+        ...Platform.select({
+            ios: {
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+            },
+            android: {
+                elevation: 5,
+            },
+        }),
     },
-    image:{
+    image: {
         flex: 1,
         resizeMode: 'stretch',
-        width: null,
-        height: null,
         justifyContent: 'flex-end',
-        alignItems:'flex-end',
-        opacity: 1,
-        marginBottom: 30
+        alignItems: 'flex-end',
+        marginBottom: 30,
     },
     h1: {
         fontSize: 26,
         fontFamily: 'bold',
         color: '#293772',
-        lineHeight: 25,
         marginTop: 20,
         textAlign: 'center',
     },
     h3: {
         fontSize: 22,
         fontFamily: 'bold',
-        lineHeight: 22,
         color: '#293772',
         marginBottom: 16,
     },
@@ -52,7 +54,6 @@ const styles = StyleSheet.create({
         marginLeft: -15,
     },
     text: {
-        fontFamily: 'regular',
         fontSize: 16,
         color: '#2C2C2C',
         marginBottom: 16,
@@ -60,19 +61,12 @@ const styles = StyleSheet.create({
         marginLeft: 20,
         textAlign: 'left',
     },
-    textcheck: {
-        fontFamily: 'regular',
-        fontSize: 15,
-        color: '#272727',
-        lineHeight: 19,
-    },
     lienRetour: {
         position: 'absolute',
-        left:2,
+        left: 2,
         marginVertical: -3,
         paddingVertical: -15,
         marginLeft: 30,
-        fontFamily: 'regular',
         fontSize: 18,
         color: '#2C2C2C',
         textDecorationLine: 'underline',
@@ -80,7 +74,6 @@ const styles = StyleSheet.create({
         textAlign: 'left',
     },
     label: {
-        fontFamily: 'regular',
         fontSize: 16,
         color: '#272727',
         lineHeight: 19,
@@ -96,7 +89,6 @@ const styles = StyleSheet.create({
     },
     inputcontent: {
         flex: 1,
-        fontFamily: 'regular',
         fontSize: 16,
         color: '#707070',
         lineHeight: 19,
@@ -104,7 +96,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#707070',
         borderRadius: 8,
-        opacity: 1,
         height: 52,
         padding: 10,
     },
@@ -114,7 +105,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 10,
     },
-
     passwordInputContainer: {
         flex: 1,
         flexDirection: 'row',
@@ -122,7 +112,6 @@ const styles = StyleSheet.create({
     },
     passwordInput: {
         flex: 1,
-        fontFamily: 'regular',
         fontSize: 16,
         color: '#707070',
         lineHeight: 19,
@@ -130,7 +119,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#707070',
         borderRadius: 8,
-        opacity: 1,
         height: 52,
         padding: 10,
     },
@@ -145,7 +133,7 @@ const styles = StyleSheet.create({
         color: '#000000',
         fontSize: 15,
         right: 15,
-        textAlign: 'right'
+        textAlign: 'right',
     },
     passwordIcon: {
         position: 'absolute',
@@ -154,27 +142,24 @@ const styles = StyleSheet.create({
         textAlign: 'right',
         right: 15,
     },
-    textbuttom:{
-        fontFamily: 'medium',
+    textbuttom: {
         fontSize: 16,
         color: '#242F65',
         lineHeight: 19,
         textAlign: 'center',
     },
-    buttom:{
+    buttom: {
         backgroundColor: '#65D9D6',
         borderWidth: 1,
         borderColor: '#65D9D6',
         borderRadius: 8,
-        opacity: 1,
         width: 148,
         height: 43,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: -12,
         marginRight: 20,
-    }
-
+    },
 });
 
 export default styles;

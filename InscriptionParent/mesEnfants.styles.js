@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import {Platform, StyleSheet} from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -137,12 +137,28 @@ const styles = StyleSheet.create({
         height: 52,
         padding: 10,
     },
-    pickerSelect: {
-        fontSize: 16,
-        paddingVertical: 12,
-        paddingHorizontal: 10,
-        color: 'black',
-    },
+    pickerSelect: Platform.select({
+        ios: {
+            fontSize: 16,
+            paddingVertical: 12,
+            paddingHorizontal: 10,
+            color: 'black',
+        },
+        android: {
+            // Styles spécifiques à Android
+            fontFamily: 'regular',
+            fontSize: 16,
+            color: '#707070',
+            lineHeight: 19,
+            backgroundColor: '#FFFFFF',
+            borderWidth: 1,
+            borderColor: '#707070',
+            borderRadius: 8,
+            opacity: 1,
+            height: 52,
+            padding: 10,
+        }
+    }),
     passwordIcon: {
         position: 'absolute',
         color: '#000000',

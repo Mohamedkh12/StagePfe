@@ -117,7 +117,7 @@ const AbonnementParent = ({navigation}) => {
                             <Text style={styles.text(13, 13)}>toutes les matières</Text>
                         </View>
 
-                        <TouchableOpacity style={styles.buttonWrapper} onPress={() => {}}>
+                        <TouchableOpacity style={styles.buttonWrapper} onPress={() =>navigation.navigate('CompteParent', { roleId: 2 })}>
                             <Text style={styles.buttonText}>JE M’ABONNE</Text>
                         </TouchableOpacity>
 

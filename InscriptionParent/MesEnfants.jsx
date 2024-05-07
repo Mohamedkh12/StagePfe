@@ -51,7 +51,7 @@ const MesEnfants = ({ navigation }) => {
             for (let i = 0; i < children.length; i++) {
                 const childData = children[i];
                 if (!childData || !childData.prenom || !childData.classe || !childData.identifiant || !childData.motDePasse) {
-                    continue; // Passer à l'enfant suivant
+                    continue;
                 }
 
                 const formData = new FormData();
@@ -75,20 +75,19 @@ const MesEnfants = ({ navigation }) => {
                 } else {
                     formData.append('image', null);
                 }
-
                 requests.push(
                     axiosProvider.post('parents/createChildren', formData, {
                         headers: {
-                            'Content-Type': 'multipart/form-data',
-                            'Authorization': `Bearer ${token}`
-                        }
+                            'content-Type': 'multipart/form-data',
+                        },
+                        timeout: 10000,
                     }).then(response => response.data)
                 );
+                console.log(requests)
             }
 
             const responses = await Promise.all(requests);
-            console.log('Responses from server:', responses);
-
+            console.log("responses :",responses)
             if (responses.every(response => response !== null)) {
                 return responses;
             } else {
@@ -108,9 +107,8 @@ const MesEnfants = ({ navigation }) => {
         });
     };
     useEffect(() => {
-        // Vérifier si c'est la première exécution pour éviter les appels inutiles à l'initialisation
         if (children.length > 0) {
-            handleNextButton(); // Appeler handleNextButton lorsque children est mis à jour
+            handleNextButton();
         }
     }, [children]);
 
@@ -120,7 +118,6 @@ const MesEnfants = ({ navigation }) => {
             const updatedChildren = responses.map(response => response.data);
             setChildren(updatedChildren);
 
-            // Naviguer vers la page suivante une fois que les enfants ont été créés
             navigation.navigate('InfosPersonnelles');
             setIsDataSubmitted(true);
         } catch (error) {

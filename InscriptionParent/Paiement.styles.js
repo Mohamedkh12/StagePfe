@@ -86,7 +86,7 @@ const styles=StyleSheet.create({
         position: 'absolute',
         color: '#000000',
         fontSize: 15,
-        right: 15,
+        right: 8,
         textAlign: 'right'
     },
     textbuttom:{

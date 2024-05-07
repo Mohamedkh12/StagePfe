@@ -68,13 +68,20 @@ const CompteParent = ({ route, navigation }) => {
             });
 
             console.log("Response data:", response.data);
-            await AsyncStorage.setItem('jwtToken', response.data.access_token);
+
+            if (response.status === 201) {
+                await AsyncStorage.setItem('jwtToken', response.data.access_token);
+            } else if (response.status === 400) {
+                Alert.alert('Erreur', 'Cet utilisateur existe déjà.');
+            }
+
             return response;
         } catch (error) {
             console.error('Erreur lors de la création du compte parent :', error);
             throw error;
         }
     };
+
     const verifyEmail = async (email) => {
         try {
             const response = await axiosProvider.post('parents/verifiyEmail', {

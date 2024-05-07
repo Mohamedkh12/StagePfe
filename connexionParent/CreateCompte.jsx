@@ -37,20 +37,7 @@ const CreateCompte = ({navigation}) => {
                     </Text>
                 </View>
 
-                <View style={styles.contetnEnseignant}>
-                    <TouchableOpacity onPress={()=>{}}>
-                        <Image
-                            source={require('../assets/images/teacher-mobile.png')}
-                            style={styles.imageEnseignant}
-                        />
-                    </TouchableOpacity>
-                    <Text style={styles.H2}>Enseignant</Text>
-                    <Text style={styles.text}>
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    </Text>
-                </View>
-
-                <TouchableOpacity onPress={() => {}}>
+                <TouchableOpacity onPress={() => navigation.navigate('Signin')}>
                     <Text style={styles.lien}>Connectez-vous !</Text>
                 </TouchableOpacity>
             </View>

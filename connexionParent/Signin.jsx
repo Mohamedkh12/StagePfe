@@ -34,7 +34,7 @@ const Signin = ({ navigation }) => {
         return;
       }
       const response = await axiosProvider.post('auth/login', {
-        username: identifiant,
+        email: identifiant,
         password: password
       });
       await AsyncStorage.setItem('jwtToken', response.data.access_token);
@@ -43,10 +43,12 @@ const Signin = ({ navigation }) => {
         console.log("userRole : ",userRole)
         if (userRole === 3) {
           navigation.navigate('ChildStack');
-        } else if (userRole === 2) {
+        } if (userRole === 2) {
           navigation.navigate('ButtomTabNavigation');
-        } else {
-          console.error('Unknown user role');
+        } if(userRole ===1){
+          await AsyncStorage.setItem('TokenAdmin', response.data.tokenAdmin);
+          console.log(response.data)
+          navigation.navigate('AdminStack');
         }
         setIdentifiant('');
         setPassword('');
@@ -75,9 +77,9 @@ const Signin = ({ navigation }) => {
               <Text style={styles.text}>Identifiant*</Text>
               <TextInput
                   style={styles.input}
-                  inputMode={"text"}
-                  keyboardType={"email-address"}
-                  autoCompleteType={"email"}
+                  keyboardType="email-address"
+                  inputMode="email"
+                  autoCompleteType="email"
                   placeholder={'Enter your email address'}
                   onChange={(e) => {
                     setIdentifiant(e.nativeEvent.text);

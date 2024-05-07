@@ -1,5 +1,5 @@
 import React, { useEffect, useState} from 'react';
-import {Text, TextInput, TouchableOpacity, View, Image, SafeAreaView, Alert, KeyboardAvoidingView} from 'react-native';
+import {Text, TextInput, TouchableOpacity, View, Image, Platform, Alert, KeyboardAvoidingView} from 'react-native';
 import { Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
 import styles from './mesEnfants.styles';
@@ -7,7 +7,7 @@ import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import JWT from "expo-jwt";
-import {axiosProvider} from "../http/httpService";
+import {Picker} from "@react-native-picker/picker";
 
 
 const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, onImageSelect }) => {
@@ -99,7 +99,13 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
             return 'Mon troisième enfant';
         }
     };
-
+    const classes = [
+        { label: '1/2', value: '1/2' },
+        { label: '3/4', value: '3/4' },
+        { label: '5/6', value: '5/6' },
+        { label: '7/8', value: '7/8' },
+        { label: '9/10', value: '9/10' }
+    ];
     return (
 
             <KeyboardAvoidingView >
@@ -140,21 +146,29 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
                         <Text style={styles.label}>Classe*</Text>
                         <View style={styles.inputcontent}>
                             <View style={styles.inputwrapper}>
-                                <RNPickerSelect
-                                    value={classe}
-                                    onValueChange={(value) => {
-                                        setClasse(value);
-                                    }}
-                                    placeholder={{ label: 'Choisir une classe', value: null }}
-                                    items={[
-                                        { label: '1/2', value: '1/2' },
-                                        { label: '3/4', value: '3/4' },
-                                        { label: '5/6', value: '5/6' },
-                                        { label: '7/8', value: '7/8' },
-                                        { label: '9/10', value: '9/10' },
-                                    ]}
-                                />
-                                <AntDesign name="down" size={24} color="black" />
+                                {Platform.OS === 'ios' ? (
+                                    <>
+                                        <RNPickerSelect
+                                            value={classe}
+                                            onValueChange={(value) => {
+                                                setClasse(value);
+                                            }}
+                                            placeholder={{ label: 'Choisir une classe', value: null }}
+                                            items={classes}
+                                        />
+                                        <AntDesign name="down" size={24} color="black" />
+                                    </>
+                                ) : (
+                                    <Picker
+                                        selectedValue={classe}
+                                        style={{ height: 50, width: '100%' }}
+                                        onValueChange={(itemValue) => setClasse(itemValue)}
+                                    >
+                                        {classes.map((item, index) => (
+                                            <Picker.Item key={index} label={item.label} value={item.value} />
+                                        ))}
+                                    </Picker>
+                                )}
                             </View>
                         </View>
                         {errorMessages && errorMessages.classe && <Text style={{ color: 'red' }}>{errorMessages.classe}</Text>}

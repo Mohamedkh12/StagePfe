@@ -1,4 +1,4 @@
-import {StyleSheet} from "react-native";
+import {Platform, StyleSheet} from "react-native";
 
 const styles = StyleSheet.create({
     contentContainer: {
@@ -23,15 +23,25 @@ const styles = StyleSheet.create({
         marginTop: 20,
         marginBottom: 80,
     },
-    content2: {
-        backgroundColor: '#FEEBC4',
-        opacity: 1,
-        width: 355,
-        height: 560,
-        borderRadius: 15,
-        marginTop: 70,
+    content2: Platform.select({
+        ios: {
+            backgroundColor: '#FEEBC4',
+            opacity: 1,
+            width: 355,
+            height: 560,
+            borderRadius: 15,
+            marginTop: 40,
+        },
+        android: {
+            backgroundColor: '#FEEBC4',
+            opacity: 1,
+            width: 355,
+            height: 560,
+            borderRadius: 15,
+            marginTop: 120,
+        }
 
-    },
+}),
     innerContent: {
         alignItems: 'center',
         marginTop: 10,
@@ -98,24 +108,24 @@ const styles = StyleSheet.create({
         borderColor: '#65D9D6',
         borderRadius: 8,
         opacity: 1,
-        width: 148,
-        height: 43,
+        paddingHorizontal: 20, // Utilisation de padding horizontal au lieu de largeur fixe
+        paddingVertical: 10, // Utilisation de padding vertical pour l'espacement
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,
         marginBottom: 10,
+        alignSelf: 'center', // Centrer le bouton horizontalement
     },
     buttonText: {
-        width: 108,
-        height: 19,
         fontFamily: 'medium',
-        fontSize: 15,
+        fontSize: 15, // Taille de la police adaptative
         lineHeight: 19,
         letterSpacing: 0,
         color: '#242F65',
         textTransform: 'uppercase',
         opacity: 1,
     },
+
     italicText: {
         fontFamily: 'italic',
         fontSize: 15,
