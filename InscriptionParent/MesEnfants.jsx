@@ -1,5 +1,5 @@
-import React, {useState, useEffect, useContext} from 'react';
-import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, KeyboardAvoidingView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, KeyboardAvoidingView, Alert, Platform } from 'react-native';
 import { AntDesign, Octicons } from '@expo/vector-icons';
 import EnfantForm from './EnfantForm';
 import styles from './mesEnfants.styles';
@@ -8,7 +8,8 @@ import { axiosProvider } from '../http/httpService';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import JWT from "expo-jwt";
 import ProgressStepsScreen from "./ProgressStepsScreen";
-
+import mime from 'mime';
+import axios from "axios";
 
 const MesEnfants = ({ navigation }) => {
     const [children, setChildren] = useState([]);
@@ -17,6 +18,7 @@ const MesEnfants = ({ navigation }) => {
     const [isDataSubmitted, setIsDataSubmitted] = useState(false);
     const [errorMessages, setErrorMessages] = useState([]);
     const [selectedImage, setSelectedImage] = useState('');
+
     useEffect(() => {
         setShowAddButton(count < selectedOption);
     }, [count, selectedOption]);
@@ -25,9 +27,10 @@ const MesEnfants = ({ navigation }) => {
         setErrorMessages([]);
     }, [children]);
 
-    const handleImageSelect = ( uri) => {
-        setSelectedImage(uri)
+    const handleImageSelect = (uri) => {
+        setSelectedImage(uri);
     };
+
     const formDataToJson = (formData) => {
         const jsonObject = {};
         for (const [key, value] of formData._parts) {
@@ -42,20 +45,14 @@ const MesEnfants = ({ navigation }) => {
             if (!token) {
                 throw new Error('JWT token is missing');
             }
-
             const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
             const parentId = decodedToken.sub;
-
             const requests = [];
-
             for (let i = 0; i < children.length; i++) {
                 const childData = children[i];
-                if (!childData || !childData.prenom || !childData.classe || !childData.identifiant || !childData.motDePasse) {
-                    continue;
-                }
+                console.log(childData)
 
                 const formData = new FormData();
-
                 formData.append('username', childData.prenom);
                 formData.append('classe', childData.classe);
                 formData.append('email', childData.identifiant);
@@ -63,7 +60,18 @@ const MesEnfants = ({ navigation }) => {
                 formData.append('id_parent', parentId);
                 formData.append('roleId', 3);
 
-                if (childData.image) {
+                // Correction pour la plateforme Android
+                if (Platform.OS === 'android' && selectedImage) {
+                    const newImageUri = "file:///" + selectedImage.split("file:/").join("");
+                    const fileExtension = mime.getExtension(newImageUri);
+                    const mimeType = mime.getType(newImageUri);
+
+                    formData.append('image', {
+                        uri: newImageUri,
+                        name: `image.${fileExtension}`,
+                        type: mimeType,
+                    });
+                } else if (Platform.OS === 'ios' && childData.image) {
                     const imageUriParts = childData.image.split('.');
                     const fileExtension = imageUriParts[imageUriParts.length - 1];
 
@@ -72,29 +80,26 @@ const MesEnfants = ({ navigation }) => {
                         name: `image.${fileExtension}`,
                         type: `image/${fileExtension}`,
                     });
-                } else {
-                    formData.append('image', null);
                 }
-                requests.push(
-                    axiosProvider.post('parents/createChildren', formData, {
-                        headers: {
-                            'content-Type': 'multipart/form-data',
-                        },
-                        timeout: 10000,
-                    }).then(response => response.data)
-                );
-                console.log(requests)
-            }
 
-            const responses = await Promise.all(requests);
-            console.log("responses :",responses)
-            if (responses.every(response => response !== null)) {
-                return responses;
-            } else {
-                throw new Error('Failed to create one or more children');
+                const response = await axios.create({
+                    baseURL: 'http://192.168.1.31:3000/',
+                    timeout: 10000,
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                        'cache-control': 'no-cache',
+                    },
+                    transformRequest: (data) => {
+                        return data;
+                    },
+                }).post('parents/createChildren', formData);
+                requests.push(response);
             }
+            const responses = await Promise.all(requests);
+            return responses;
         } catch (error) {
             console.error("Error creating children:", error);
+            console.error('Error response:', error.response);
             throw error;
         }
     };
@@ -106,6 +111,7 @@ const MesEnfants = ({ navigation }) => {
             return updatedChildren;
         });
     };
+
     useEffect(() => {
         if (children.length > 0) {
             handleNextButton();
@@ -115,9 +121,6 @@ const MesEnfants = ({ navigation }) => {
     const handleNextButton = async () => {
         try {
             const responses = await handleCreateChildren();
-            const updatedChildren = responses.map(response => response.data);
-            setChildren(updatedChildren);
-
             navigation.navigate('InfosPersonnelles');
             setIsDataSubmitted(true);
         } catch (error) {
@@ -126,24 +129,22 @@ const MesEnfants = ({ navigation }) => {
         }
     };
 
-
     const steps = ['Abonnement', 'Compte parent', 'Paiement', 'Mes enfants', 'Mes infos personnelles'];
-    const currentStep =3;
+    const currentStep = 3;
 
     return (
         <KeyboardAvoidingView>
             <SafeAreaView style={styles.container}>
                 <ScrollView>
-                <View>
-                    <CustomHeader />
-                    <ProgressStepsScreen steps={steps} currentStep={currentStep} />
-                </View>
+                    <View>
+                        <CustomHeader />
+                        <ProgressStepsScreen steps={steps} currentStep={currentStep} />
+                    </View>
                     <Text style={styles.h1}>Mes enfants</Text>
                     <Text style={styles.text}>
                         Pour se connecter à la plateforme, votre enfant aura besoin de son identifiant et mot de passe.
                     </Text>
-
-                    { [...Array(count)].map((_, index) => (
+                    {[...Array(count)].map((_, index) => (
                         <EnfantForm
                             key={index + 1}
                             index={index + 1}
@@ -155,7 +156,6 @@ const MesEnfants = ({ navigation }) => {
                             onImageSelect={handleImageSelect}
                         />
                     ))}
-
                     <View>
                         <View>
                             {showAddButton && (

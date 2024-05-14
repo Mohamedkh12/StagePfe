@@ -10,7 +10,7 @@ import JWT from "expo-jwt";
 import {Picker} from "@react-native-picker/picker";
 
 
-const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, onImageSelect }) => {
+const EnfantForm = ({ index, onChildDataChange,isDataSubmitted,errorMessages, onImageSelect }) => {
     const [selectedImage, setSelectedImage] = useState('');
     const [prenom, setPrenom] = useState('');
     const [classe, setClasse] = useState(null);
@@ -21,7 +21,7 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
     const getToken = async (key) => {
         return await AsyncStorage.getItem(key);
     };
-    useEffect(() => {
+  useEffect(() => {
         if (isDataSubmitted) {
             handleAddEnfant();
         }
@@ -41,7 +41,7 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
             console.error('Error saving child data:', error);
             Alert.alert('Error', 'An error occurred while saving child data.');
         }
-    };
+    }
     const checkChildExists = async (prenom) => {
             if (prenom) {
                 const token = await getToken('jwtToken');
@@ -164,6 +164,7 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted ,errorMessages, o
                                         style={{ height: 50, width: '100%' }}
                                         onValueChange={(itemValue) => setClasse(itemValue)}
                                     >
+                                        <Picker.Item label="Choisir une classe" value={null} />
                                         {classes.map((item, index) => (
                                             <Picker.Item key={index} label={item.label} value={item.value} />
                                         ))}

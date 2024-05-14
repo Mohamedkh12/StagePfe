@@ -5,7 +5,10 @@ const style= StyleSheet.create({
         width: "100%",
         height: "100%",
         backgroundColor: '#FFFFFF',
-        marginLeft:20
+    },
+    content:{
+        marginLeft:20,
+        marginTop:20
     },
     title:{
         fontFamily:'bold',

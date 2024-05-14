@@ -24,7 +24,7 @@ const ParentProfil = ({navigation}) => {
     };
     return(
         <SafeAreaView style={styles.container}>
-            <View>
+            <View style={styles.content}>
                 <View>
                     <Text style={styles.title}>Mon profil</Text>
                 </View>

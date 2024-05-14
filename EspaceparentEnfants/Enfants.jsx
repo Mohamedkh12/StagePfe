@@ -86,7 +86,7 @@ const Enfants = ({ navigation }) => {
 
     const renderEnfantItem = ({ item }) => {
         return (
-            <View style={styles.container}>
+            <View >
                 <View style={styles.box}>
                     <View style={{ flexDirection: 'row' }}>
                         <Image source={{ uri: item.image }} style={styles.image} />
@@ -113,9 +113,6 @@ const Enfants = ({ navigation }) => {
                             )}
                         </View>
                     </View>
-                    <TouchableOpacity style={styles.buttom} onPress={()=> navigation.navigate('ChildStack')}>
-                        <Text style={styles.textbuttom}>ACCÉDER À SON COMPTE</Text>
-                    </TouchableOpacity>
                 </View>
             </View>
         );
@@ -135,7 +132,7 @@ const Enfants = ({ navigation }) => {
                 />
                 <View>
                     <TouchableOpacity
-                        style={{ flexDirection: "row", justifyContent: 'flex-end', marginRight: 20, marginTop: 110 }}
+                        style={{ flexDirection: "row", justifyContent: 'flex-end', marginRight: 20, marginTop: 50,marginBottom: 80 }}
                         onPress={() => navigation.navigate('AddChild')}
                     >
                         <AntDesign name="pluscircle" color={"#242F65"} size={50} />

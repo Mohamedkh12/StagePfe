@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Image, KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from "react-native";
 import { AntDesign, Entypo, MaterialIcons } from "@expo/vector-icons";
 import RNPickerSelect from "react-native-picker-select";
 import * as ImagePicker from "expo-image-picker";
@@ -7,6 +17,8 @@ import * as ImageManipulator from "expo-image-manipulator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { axiosProvider } from "../http/httpService";
 import styles from "./AddChildStyle";
+import mime from "mime";
+import axios from "axios";
 
 const AddChild = ({ navigation }) => {
     const [identifiant, setIdentifiant] = useState('');
@@ -103,6 +115,13 @@ const AddChild = ({ navigation }) => {
         setIdentifiant("");
         setPassword("");
     };
+    const formDataToJson = (formData) => {
+        const jsonObject = {};
+        for (const [key, value] of formData._parts) {
+            jsonObject[key] = value;
+        }
+        return jsonObject;
+    };
     // Fonction pour soumettre le formulaire
     const onSubmit = async () => {
         // Réinitialiser les messages d'erreur
@@ -133,7 +152,6 @@ const AddChild = ({ navigation }) => {
 
         if (formIsValid) {
             try {
-                // Création du FormData pour envoyer les données au serveur
                 const formData = new FormData();
                 formData.append('username', prenom);
                 formData.append('classe', classe);
@@ -141,7 +159,8 @@ const AddChild = ({ navigation }) => {
                 formData.append('password', password);
                 formData.append('id_parent', parentId);
                 formData.append('roleId', 3);
-                if (selectedImage) {
+
+                if(Platform.OS==='ios'){
                     const imageUriParts = selectedImage.split('.');
                     const fileExtension = imageUriParts[imageUriParts.length - 1];
 
@@ -150,16 +169,33 @@ const AddChild = ({ navigation }) => {
                         name: `image.${fileExtension}`,
                         type: `image/${fileExtension}`,
                     });
+                }if (Platform.OS === 'android') {
+                    if(selectedImage) {
+                        const newImageUri = "file:///" + selectedImage.split("file:/").join("");
+
+                        formData.append('image', {
+                            uri: newImageUri,
+                            type: mime.getType(newImageUri),
+                            name: newImageUri.split("/").pop()
+                        });
+                    }
                 }
 
+                console.log(formData)
+
                 const token = await AsyncStorage.getItem('jwtToken');
-                const response = await axiosProvider.post('parents/createChildren', formData, {
+                const response = await axios.create({
+                    baseURL: 'http://192.168.1.31:3000/',
+                    timeout: 10000,
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
+                        'Authorization': `Bearer ${token}`,
+                        'cache-control': 'no-cache',
+                    },
+                    transformRequest: (data) => {
+                        return data;
+                    },
+                }).post('parents/createChildren', formData);
                 if (response && response.status === 201) {
                     navigation.navigate('Enfants');
                     resetForm();
