@@ -21,7 +21,7 @@ const MesEnfants = ({ navigation }) => {
     ]);
     const [selectedImage, setSelectedImage] = useState('');
     const [nextButtonDisabled, setNextButtonDisabled] = useState(true);
-    const [allFieldsFilled,setallFieldsFilled]=useState(true)
+    const [allFieldsFilled, setAllFieldsFilled] = useState(true);
     global.selectedOption = selectedOption;
 
     useEffect(() => {
@@ -100,36 +100,42 @@ const MesEnfants = ({ navigation }) => {
             throw error;
         }
     };
-
+/*
+* const handelalidation=()=>{
+* if(forms.prenon.trim().length > 0 && forms.motDePasse.trim().length > 0
+* && forms.classe.trim().length > 0 && forms.identifiant.trim().length > 0){
+* setNextButtonDisabled(false)
+}
+* else {
+* setNextButtonDisabled(true)
+* }*/
     const handleChildDataChange = async (index, name, value) => {
         try {
             const newForms = [...forms];
             newForms[index][name] = value;
             setForms(newForms);
 
-            // Mettre à jour l'état du bouton suivant après avoir mis à jour les états du formulaire
-            const allFieldsFilled = newForms.every(form =>
+            // Vérifier si tous les champs sont remplis
+            const filled = newForms.every(form =>
                 form.prenom.trim().length > 0 &&
                 form.motDePasse.trim().length > 0 &&
                 form.classe.trim().length > 0 &&
                 form.identifiant.trim().length > 0
             );
-            if(allFieldsFilled){
-                setallFieldsFilled(true)
-            }
-            else{
-                setallFieldsFilled(false)
-            }
+
+            // Mettre à jour l'état de remplissage
+            setAllFieldsFilled(filled);
+
+            // Mettre à jour l'état du bouton suivant
             const prenoms = newForms.filter(form => form.prenom.trim() !== '');
             const uniqueUsernames = new Set(newForms.map(form => form.prenom.trim()));
-            setNextButtonDisabled(!allFieldsFilled || uniqueUsernames.size !== prenoms.length);
+            setNextButtonDisabled(!filled || uniqueUsernames.size !== prenoms.length);
         } catch (error) {
             console.error("Error creating children:", error);
             console.error('Error response:', error.response);
             throw error;
         }
     };
-
 
     const handleAddForm = () => {
         if (count < selectedOption) {
