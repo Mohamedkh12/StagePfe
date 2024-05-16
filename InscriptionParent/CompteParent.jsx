@@ -119,7 +119,6 @@ const CompteParent = ({ route, navigation }) => {
                     <ProgressStepsScreen steps={steps} currentStep={currentStep} />
                 </View>
                 <SafeAreaView >
-                    <ImageBackground source={require('../assets/images/bulleBleueBasse.png')} style={styles.image}>
                         <View style={styles.container}>
                             <View>
                                 <Text style={styles.h1}>Mon Compte Parent</Text>
@@ -291,7 +290,6 @@ const CompteParent = ({ route, navigation }) => {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                    </ImageBackground>
                 </SafeAreaView>
             </ScrollView>
         </KeyboardAvoidingView>

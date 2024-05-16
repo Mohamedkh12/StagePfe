@@ -10,52 +10,19 @@ import JWT from "expo-jwt";
 import {Picker} from "@react-native-picker/picker";
 
 
-const EnfantForm = ({ index, onChildDataChange,isDataSubmitted,errorMessages, onImageSelect }) => {
+const EnfantForm = ({ index,formData, onChildDataChange,isDataSubmitted,onImageSelect,onClasseChange  }) => {
     const [selectedImage, setSelectedImage] = useState('');
-    const [prenom, setPrenom] = useState('');
-    const [classe, setClasse] = useState(null);
-    const [identifiant, setIdentifiant] = useState('');
-    const [motDePasse, setMotDePasse] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
-    const getToken = async (key) => {
-        return await AsyncStorage.getItem(key);
-    };
-  useEffect(() => {
+    useEffect(() => {
         if (isDataSubmitted) {
-            handleAddEnfant();
+            handilInputChild();
         }
     }, [isDataSubmitted]);
 
-    const handleAddEnfant = async () => {
-        const childData = {
-            image: selectedImage,
-            prenom,
-            classe,
-            identifiant,
-            motDePasse,
-        };
-        try {
-            onChildDataChange(index, childData, selectedImage);
-        } catch (error) {
-            console.error('Error saving child data:', error);
-            Alert.alert('Error', 'An error occurred while saving child data.');
-        }
+    const handilInputChild = (index, name, value) => {
+        onChildDataChange(index, name, value);
     }
-    const checkChildExists = async (prenom) => {
-            if (prenom) {
-                const token = await getToken('jwtToken');
-                const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
-                const parentId = decodedToken.sub;
-                setIdentifiant(`${prenom}${parentId}`);
-            }else{
-                setIdentifiant('');
-            }
-    };
-    useEffect(() => {
-        checkChildExists(prenom);
-    }, [prenom]);
-
     const openImagePicker = async () => {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
@@ -91,9 +58,9 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted,errorMessages, on
     };
 
     const getTitleText = () => {
-        if (index === 1) {
+        if (index === 0) {
             return 'Mon premier enfant';
-        } else if (index === 2) {
+        } else if (index === 1) {
             return 'Mon second enfant';
         } else {
             return 'Mon troisième enfant';
@@ -132,15 +99,12 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted,errorMessages, on
                         <Text style={styles.label}>Prénom*</Text>
                         <TextInput
                             placeholder="Prénom"
-                            onChangeText={(value) => setPrenom(value)}
-                            value={prenom}
+                            onChangeText={text => handilInputChild(index, 'prenom', text)}
+                            value={formData.prenom}
                             inputMode="text"
                             autoComplete="cc-family-name"
                             style={styles.inputcontent}
                         />
-                        {errorMessages && errorMessages[index] && errorMessages[index].prenom && (
-                            <Text style={{ color: 'red' }}>{errorMessages[index].prenom}</Text>
-                        )}
                     </View>
                     <View>
                         <Text style={styles.label}>Classe*</Text>
@@ -149,10 +113,8 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted,errorMessages, on
                                 {Platform.OS === 'ios' ? (
                                     <>
                                         <RNPickerSelect
-                                            value={classe}
-                                            onValueChange={(value) => {
-                                                setClasse(value);
-                                            }}
+                                            value={formData.classe}
+                                            onValueChange={(value) => onClasseChange(value)}
                                             placeholder={{ label: 'Choisir une classe', value: null }}
                                             items={classes}
                                         />
@@ -160,9 +122,9 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted,errorMessages, on
                                     </>
                                 ) : (
                                     <Picker
-                                        selectedValue={classe}
+                                        selectedValue={formData.classe}
                                         style={{ height: 50, width: '100%' }}
-                                        onValueChange={(itemValue) => setClasse(itemValue)}
+                                        onValueChange={(value) => onClasseChange(value)}
                                     >
                                         <Picker.Item label="Choisir une classe" value={null} />
                                         {classes.map((item, index) => (
@@ -172,7 +134,6 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted,errorMessages, on
                                 )}
                             </View>
                         </View>
-                        {errorMessages && errorMessages.classe && <Text style={{ color: 'red' }}>{errorMessages.classe}</Text>}
                     </View>
 
                     <Text style={styles.h2}>Connexion</Text>
@@ -182,10 +143,10 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted,errorMessages, on
                         <TextInput
                             style={styles.inputcontent}
                             placeholder="Identifiant"
-                            value={identifiant}
+                            value={formData.identifiant}
+                            onChangeText={text => handilInputChild(index, 'identifiant', text)}
                             editable={false}
                         />
-                        {errorMessages && errorMessages.identifiant && <Text style={{ color: 'red' }}>{errorMessages.identifiant}</Text>}
                     </View>
 
                     <View>
@@ -193,10 +154,8 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted,errorMessages, on
                         <View style={styles.passwordInputWrapper}>
                             <TextInput
                                 placeholder="Password"
-                                onChangeText={(value) => {
-                                    setMotDePasse(value);
-                                }}
-                                value={motDePasse}
+                                onChangeText={text => handilInputChild(index, 'password', text)}
+                                value={formData.password}
                                 secureTextEntry={showPassword}
                                 inputMode="text"
                                 autoCompleteType="password"
@@ -209,7 +168,6 @@ const EnfantForm = ({ index, onChildDataChange,isDataSubmitted,errorMessages, on
                                     style={styles.passwordIcon}
                                 />
                             </TouchableOpacity>
-                            {errorMessages && errorMessages.motDePasse && <Text style={{ color: 'red' }}>{errorMessages.motDePasse}</Text>}
                         </View>
 
                     </View>

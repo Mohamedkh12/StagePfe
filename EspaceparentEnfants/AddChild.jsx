@@ -159,25 +159,29 @@ const AddChild = ({ navigation }) => {
                 formData.append('password', password);
                 formData.append('id_parent', parentId);
                 formData.append('roleId', 3);
-
-                if(Platform.OS==='ios'){
-                    const imageUriParts = selectedImage.split('.');
-                    const fileExtension = imageUriParts[imageUriParts.length - 1];
-
-                    formData.append('image', {
-                        uri: selectedImage,
-                        name: `image.${fileExtension}`,
-                        type: `image/${fileExtension}`,
-                    });
-                }if (Platform.OS === 'android') {
-                    if(selectedImage) {
-                        const newImageUri = "file:///" + selectedImage.split("file:/").join("");
+                /*if (!selectedImage) {
+                    formData.append('image', defaultImage);
+                }*/
+                if(selectedImage) {
+                    if(Platform.OS==='ios'){
+                        const imageUriParts = selectedImage.split('.');
+                        const fileExtension = imageUriParts[imageUriParts.length - 1];
 
                         formData.append('image', {
-                            uri: newImageUri,
-                            type: mime.getType(newImageUri),
-                            name: newImageUri.split("/").pop()
+                            uri: selectedImage,
+                            name: `image.${fileExtension}`,
+                            type: `image/${fileExtension}`,
                         });
+                    }if (Platform.OS === 'android') {
+                        if(selectedImage) {
+                            const newImageUri = "file:///" + selectedImage.split("file:/").join("");
+
+                            formData.append('image', {
+                                uri: newImageUri,
+                                type: mime.getType(newImageUri),
+                                name: newImageUri.split("/").pop()
+                            });
+                        }
                     }
                 }
 
@@ -185,7 +189,7 @@ const AddChild = ({ navigation }) => {
 
                 const token = await AsyncStorage.getItem('jwtToken');
                 const response = await axios.create({
-                    baseURL: 'http://192.168.1.31:3000/',
+                    baseURL: 'http://192.168.1.121:3000/',
                     timeout: 10000,
                     headers: {
                         'Content-Type': 'multipart/form-data',
