@@ -10,23 +10,20 @@ import ProgressStepsScreen from "./ProgressStepsScreen";
 import mime from 'mime';
 import axios from "axios";
 import {from} from "form-data";
+import {axiosProvider} from "../http/httpService";
 
 const MesEnfants = ({ navigation }) => {
-    const [children, setChildren] = useState([]);
     const [count, setCount] = useState(1);
-    const [prenon, setPrenon] = useState('');
     const [showAddButton, setShowAddButton] = useState(true);
     const [isDataSubmitted, setIsDataSubmitted] = useState(false);
     const [forms, setForms] = useState([
-        {image:'', prenom: '', password: '', classe: '', identifiant: '', motDePasse: '' }
+        { prenom: '', motDePasse: '', classe: '', identifiant: ''}
     ]);
     const [selectedImage, setSelectedImage] = useState('');
     const [nextButtonDisabled, setNextButtonDisabled] = useState(true);
+    const [allFieldsFilled,setallFieldsFilled]=useState(true)
     global.selectedOption = selectedOption;
 
-    const getToken = async (key) => {
-        return await AsyncStorage.getItem(key);
-    };
     useEffect(() => {
         setShowAddButton(count < selectedOption);
     }, [count, selectedOption]);
@@ -65,6 +62,7 @@ const MesEnfants = ({ navigation }) => {
                             name: `image.${fileExtension}`,
                             type: `image/${fileExtension}`,
                         });
+
                     }
                     if (Platform.OS === 'android') {
                         const newImageUri = "file:///" + selectedImage.split("file:/").join("");
@@ -75,9 +73,9 @@ const MesEnfants = ({ navigation }) => {
                         });
                     }
                 }
-
+                console.log('formData:', formData);
                 const response = await axios.create({
-                    baseURL: 'http://192.168.1.121:3000/',
+                    baseURL: 'http://192.168.1.6:3000/',
                     timeout: 10000,
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -88,16 +86,11 @@ const MesEnfants = ({ navigation }) => {
                         return data;
                     },
                 }).post('parents/createChildren', formData);
-
-                if (!response.data.status) {
-                    if (response.data.error.includes('Child exist')) {
-                        Alert.alert('Erreur', response.data.error);
-                    }
-                } else {
-                    Alert.alert('Enfant enregistré avec succès');
-                    requests.push(response);
-                    navigation.navigate('InfosPersonnelles');
-                }
+                console.log("response :",response)
+                Alert.alert('Enfant enregistré avec succès');
+                requests.push(response);
+                navigation.navigate('InfosPersonnelles')
+                console.log("requests :",requests)
             }
             const responses = await Promise.all(requests);
             return responses;
@@ -109,35 +102,39 @@ const MesEnfants = ({ navigation }) => {
     };
 
     const handleChildDataChange = async (index, name, value) => {
-        const newForms = [...forms];
-        newForms[index][name] = value;
-        setForms(newForms);
+        try {
+            const newForms = [...forms];
+            newForms[index][name] = value;
+            setForms(newForms);
 
-        const token = await getToken('jwtToken');
-        const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
-        const parentId = decodedToken.sub;
-
-        // Construire l'identifiant en incluant le dernier caractère du prénom et le numéro du parent
-        console.log("prenon : ",newForms[index]['prenom']);
-        console.log("identifiant : ",newForms[index]['identifiant']);
-        const currentIdentifiant = newForms[index]['identifiant'];
-        if (name === 'prenom' && value.length > 0) {
-            setPrenon(value); // Mettre à jour le state prenon
-            const identifiant = `${value}${parentId}`;
-            newForms[index]['identifiant'] = identifiant;
+            // Mettre à jour l'état du bouton suivant après avoir mis à jour les états du formulaire
+            const allFieldsFilled = newForms.every(form =>
+                form.prenom.trim().length > 0 &&
+                form.motDePasse.trim().length > 0 &&
+                form.classe.trim().length > 0 &&
+                form.identifiant.trim().length > 0
+            );
+            if(allFieldsFilled){
+                setallFieldsFilled(true)
+            }
+            else{
+                setallFieldsFilled(false)
+            }
+            console.log('allFieldsFilled:', allFieldsFilled);
+            const prenoms = newForms.filter(form => form.prenom.trim() !== '');
+            const uniqueUsernames = new Set(newForms.map(form => form.prenom.trim()));
+            setNextButtonDisabled(!allFieldsFilled || uniqueUsernames.size !== prenoms.length);
+        } catch (error) {
+            console.error("Error creating children:", error);
+            console.error('Error response:', error.response);
+            throw error;
         }
-        // Vérifier si toutes les valeurs sont remplies
-        const allFieldsFilled = newForms.filter(form => form.prenom.trim() !== '');
-        // Vérifier si les prénoms sont uniques
-        const uniqueUsernames = new Set(newForms.map(form => form.prenom.trim()));
-
-        // Mettre à jour l'état du bouton suivant en fonction de ces conditions
-        setNextButtonDisabled(allFieldsFilled.length !== forms.length || uniqueUsernames.size !== allFieldsFilled.length);
     };
+
 
     const handleAddForm = () => {
         if (count < selectedOption) {
-            setForms([...forms, {image:'',prenom: '', password: '', classe: '', identifiant: '', motDePasse: ''}]);
+            setForms([...forms, {image:'',prenom: '', motDePasse: '', classe: '', identifiant: ''}]);
             setCount(count + 1);
         }
     }
@@ -149,7 +146,6 @@ const MesEnfants = ({ navigation }) => {
     const handleNextButton = async () => {
         try {
             const responses = await handleCreateChildren();
-            setIsDataSubmitted(true);
         } catch (error) {
             console.error("Error creating children:", error);
             Alert.alert('Error', 'Failed to create child. Please try again later.');
@@ -173,7 +169,7 @@ const MesEnfants = ({ navigation }) => {
                     </Text>
                     {forms.map((form, index) => (
                         <EnfantForm
-                            key={index + 1}
+                            key={index+1}
                             index={index}
                             onChildDataChange={handleChildDataChange}
                             formData={form}
@@ -181,7 +177,7 @@ const MesEnfants = ({ navigation }) => {
                             onClasseChange={(value) => handleClasseChange(index, value)}
                             showAddButton={showAddButton && count < selectedOption}
                             count={count}
-                            isDataSubmitted={isDataSubmitted}
+                            //isDataSubmitted={isDataSubmitted}
                         />
                     ))}
                     <View>

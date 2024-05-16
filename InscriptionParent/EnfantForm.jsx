@@ -13,16 +13,17 @@ import {Picker} from "@react-native-picker/picker";
 const EnfantForm = ({ index,formData, onChildDataChange,isDataSubmitted,onImageSelect,onClasseChange  }) => {
     const [selectedImage, setSelectedImage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [parentId, setParentId] = useState('');
 
+    const getParentId = async () => {
+            const token = await AsyncStorage.getItem('jwtToken');
+            const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
+            setParentId(decodedToken.sub);
+    };
     useEffect(() => {
-        if (isDataSubmitted) {
-            handilInputChild();
-        }
-    }, [isDataSubmitted]);
+        getParentId();
+    }, []);
 
-    const handilInputChild = (index, name, value) => {
-        onChildDataChange(index, name, value);
-    }
     const openImagePicker = async () => {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
@@ -99,7 +100,7 @@ const EnfantForm = ({ index,formData, onChildDataChange,isDataSubmitted,onImageS
                         <Text style={styles.label}>Prénom*</Text>
                         <TextInput
                             placeholder="Prénom"
-                            onChangeText={text => handilInputChild(index, 'prenom', text)}
+                            onChangeText={text => onChildDataChange(index, 'prenom', text)}
                             value={formData.prenom}
                             inputMode="text"
                             autoComplete="cc-family-name"
@@ -143,8 +144,8 @@ const EnfantForm = ({ index,formData, onChildDataChange,isDataSubmitted,onImageS
                         <TextInput
                             style={styles.inputcontent}
                             placeholder="Identifiant"
-                            value={formData.identifiant}
-                            onChangeText={text => handilInputChild(index, 'identifiant', text)}
+                            value={formData.prenom.trim() ? `${formData.prenom.toLowerCase()}${parentId}` : ''}
+                            onChangeText={text => onChildDataChange(index, 'identifiant', text)}
                             editable={false}
                         />
                     </View>
@@ -154,7 +155,7 @@ const EnfantForm = ({ index,formData, onChildDataChange,isDataSubmitted,onImageS
                         <View style={styles.passwordInputWrapper}>
                             <TextInput
                                 placeholder="Password"
-                                onChangeText={text => handilInputChild(index, 'password', text)}
+                                onChangeText={text => onChildDataChange(index, 'motDePasse', text)}
                                 value={formData.password}
                                 secureTextEntry={showPassword}
                                 inputMode="text"
