@@ -120,7 +120,6 @@ const MesEnfants = ({ navigation }) => {
             else{
                 setallFieldsFilled(false)
             }
-            console.log('allFieldsFilled:', allFieldsFilled);
             const prenoms = newForms.filter(form => form.prenom.trim() !== '');
             const uniqueUsernames = new Set(newForms.map(form => form.prenom.trim()));
             setNextButtonDisabled(!allFieldsFilled || uniqueUsernames.size !== prenoms.length);
