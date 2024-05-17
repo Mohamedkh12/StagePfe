@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, SafeAreaView, ScrollView, KeyboardAvoidingView, Alert, Platform } from 'react-native';
 import { AntDesign, Octicons } from '@expo/vector-icons';
 import EnfantForm from './EnfantForm';
@@ -9,20 +9,15 @@ import JWT from "expo-jwt";
 import ProgressStepsScreen from "./ProgressStepsScreen";
 import mime from 'mime';
 import axios from "axios";
-import {from} from "form-data";
-import {axiosProvider} from "../http/httpService";
 
 const MesEnfants = ({ navigation }) => {
     const [count, setCount] = useState(1);
     const [showAddButton, setShowAddButton] = useState(true);
-    const [isDataSubmitted, setIsDataSubmitted] = useState(false);
     const [forms, setForms] = useState([
-        { prenom: '', motDePasse: '', classe: '', identifiant: ''}
+        { prenom: '', motDePasse: '', classe: '' }
     ]);
     const [selectedImage, setSelectedImage] = useState('');
     const [nextButtonDisabled, setNextButtonDisabled] = useState(true);
-    const [allFieldsFilled, setAllFieldsFilled] = useState(true);
-    global.selectedOption = selectedOption;
 
     useEffect(() => {
         setShowAddButton(count < selectedOption);
@@ -72,10 +67,11 @@ const MesEnfants = ({ navigation }) => {
                             name: newImageUri.split("/").pop()
                         });
                     }
+
                 }
                 console.log('formData:', formData);
                 const response = await axios.create({
-                    baseURL: 'http://192.168.1.6:3000/',
+                    baseURL: 'http://192.168.1.2:3000/',
                     timeout: 10000,
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -100,54 +96,48 @@ const MesEnfants = ({ navigation }) => {
             throw error;
         }
     };
-/*
-* const handelalidation=()=>{
-* if(forms.prenon.trim().length > 0 && forms.motDePasse.trim().length > 0
-* && forms.classe.trim().length > 0 && forms.identifiant.trim().length > 0){
-* setNextButtonDisabled(false)
-}
-* else {
-* setNextButtonDisabled(true)
-* }*/
-    const handleChildDataChange = async (index, name, value) => {
-        try {
-            const newForms = [...forms];
-            newForms[index][name] = value;
-            setForms(newForms);
 
-            // Vérifier si tous les champs sont remplis
-            const filled = newForms.every(form =>
-                form.prenom.trim().length > 0 &&
-                form.motDePasse.trim().length > 0 &&
-                form.classe.trim().length > 0 &&
-                form.identifiant.trim().length > 0
-            );
+    const handleChildDataChange = (index, name, value) => {
+        const newForms = [...forms];
+        newForms[index][name] = value;
+        setForms(newForms);
+        console.log('Forms:', newForms);
 
-            // Mettre à jour l'état de remplissage
-            setAllFieldsFilled(filled);
+// Vérifier si tous les champs sont remplis pour le formulaire en cours
+         const currentFormFilled = Object.values(newForms[index]).every(val => val.trim().length > 0);
+          console.log('Current form filled:', currentFormFilled);
 
-            // Mettre à jour l'état du bouton suivant
-            const prenoms = newForms.filter(form => form.prenom.trim() !== '');
-            const uniqueUsernames = new Set(newForms.map(form => form.prenom.trim()));
-            setNextButtonDisabled(!filled || uniqueUsernames.size !== prenoms.length);
-        } catch (error) {
-            console.error("Error creating children:", error);
-            console.error('Error response:', error.response);
-            throw error;
-        }
+          const uniqueUsernames = new Set(newForms.map(form => form.prenom.trim()));
+          console.log('Unique usernames:', uniqueUsernames);
+
+          // Mettre à jour l'état du bouton en fonction des vérifications
+          setNextButtonDisabled(uniqueUsernames.size !== newForms.length || !currentFormFilled);
     };
 
     const handleAddForm = () => {
         if (count < selectedOption) {
-            setForms([...forms, {image:'',prenom: '', motDePasse: '', classe: '', identifiant: ''}]);
+            // Ajoutez le nouveau formulaire
+            const newForms = [...forms, { prenom: '', motDePasse: '', classe: ''}];
+            setForms(newForms);
             setCount(count + 1);
+            // Vérifiez si tous les formulaires ont au moins un champ rempli
+            const allFormsFilled = newForms.every(form => Object.values(form).some(val => val.trim().length > 0));
+            console.log('All forms filled:', allFormsFilled);
+
+            const uniqueUsernames = new Set(newForms.map(form => form.prenom.trim()));
+            console.log('Unique usernames:', uniqueUsernames);
+
+            // Mettre à jour l'état du bouton en fonction des vérifications
+            setNextButtonDisabled(!allFormsFilled || uniqueUsernames.size !== newForms.length);
         }
     }
+
     const handleClasseChange = (index, value) => {
         const newForms = [...forms];
         newForms[index]['classe'] = value;
         setForms(newForms);
     };
+
     const handleNextButton = async () => {
         try {
             const responses = await handleCreateChildren();
@@ -174,7 +164,7 @@ const MesEnfants = ({ navigation }) => {
                     </Text>
                     {forms.map((form, index) => (
                         <EnfantForm
-                            key={index+1}
+                            key={index + 1}
                             index={index}
                             onChildDataChange={handleChildDataChange}
                             formData={form}
@@ -182,7 +172,6 @@ const MesEnfants = ({ navigation }) => {
                             onClasseChange={(value) => handleClasseChange(index, value)}
                             showAddButton={showAddButton && count < selectedOption}
                             count={count}
-                            //isDataSubmitted={isDataSubmitted}
                         />
                     ))}
                     <View>
@@ -202,13 +191,13 @@ const MesEnfants = ({ navigation }) => {
                             </TouchableOpacity>
                             {!showAddButton && (
                                 <TouchableOpacity
-                                    style={[styles.buttom, { opacity: !nextButtonDisabled ? 1 : 0.5 }]}
+                                    style={[styles.buttom, { opacity: nextButtonDisabled ? 0.5 : 1 }]}
                                     onPress={handleNextButton}
                                     disabled={nextButtonDisabled}
                                 >
-                                <Text style={styles.textbuttom}>SUIVANT</Text>
-                                <AntDesign name="right" selectable={true} style={styles.iconRight} />
-                            </TouchableOpacity>
+                                    <Text style={styles.textbuttom}>SUIVANT</Text>
+                                    <AntDesign name="right" selectable={true} style={styles.iconRight} />
+                                </TouchableOpacity>
                             )}
 
                         </View>
