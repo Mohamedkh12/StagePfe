@@ -6,22 +6,24 @@ import styles from './mesEnfants.styles';
 import CustomHeader from './CustomHeader';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import JWT from "expo-jwt";
-import ProgressStepsScreen from "./ProgressStepsScreen";
-import mime from 'mime';
 import axios from "axios";
-
+import mime from 'mime';
+import ProgressStepsScreen from "./ProgressStepsScreen";
 const MesEnfants = ({ navigation }) => {
     const [count, setCount] = useState(1);
     const [showAddButton, setShowAddButton] = useState(true);
-    const [forms, setForms] = useState([
-        { prenom: '', motDePasse: '', classe: '' }
-    ]);
+    const [forms, setForms] = useState([{ prenom: '', motDePasse: '', classe: '' }]);
     const [selectedImage, setSelectedImage] = useState('');
     const [nextButtonDisabled, setNextButtonDisabled] = useState(true);
+    global.selectedOption =selectedOption
 
     useEffect(() => {
         setShowAddButton(count < selectedOption);
     }, [count, selectedOption]);
+
+    useEffect(() => {
+        validateForms(forms);
+    }, [forms]);
 
     const handleImageSelect = (uri) => {
         setSelectedImage(uri);
@@ -56,8 +58,7 @@ const MesEnfants = ({ navigation }) => {
                             uri: selectedImage,
                             name: `image.${fileExtension}`,
                             type: `image/${fileExtension}`,
-                        });
-
+                    });
                     }
                     if (Platform.OS === 'android') {
                         const newImageUri = "file:///" + selectedImage.split("file:/").join("");
@@ -67,26 +68,25 @@ const MesEnfants = ({ navigation }) => {
                             name: newImageUri.split("/").pop()
                         });
                     }
-
                 }
                 console.log('formData:', formData);
                 const response = await axios.create({
-                    baseURL: 'http://192.168.1.2:3000/',
+                    baseURL: 'http://192.168.1.10:3000/',
                     timeout: 10000,
                     headers: {
                         'Content-Type': 'multipart/form-data',
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': Bearer ${token},
                         'cache-control': 'no-cache',
                     },
                     transformRequest: (data) => {
                         return data;
                     },
                 }).post('parents/createChildren', formData);
-                console.log("response :",response)
+                console.log("response :", response);
                 Alert.alert('Enfant enregistré avec succès');
                 requests.push(response);
-                navigation.navigate('InfosPersonnelles')
-                console.log("requests :",requests)
+                navigation.navigate('InfosPersonnelles');
+                console.log("requests :", requests);
             }
             const responses = await Promise.all(requests);
             return responses;
@@ -101,41 +101,22 @@ const MesEnfants = ({ navigation }) => {
         const newForms = [...forms];
         newForms[index][name] = value;
         setForms(newForms);
-        console.log('Forms:', newForms);
-
-// Vérifier si tous les champs sont remplis pour le formulaire en cours
-         const currentFormFilled = Object.values(newForms[index]).every(val => val.trim().length > 0);
-          console.log('Current form filled:', currentFormFilled);
-
-          const uniqueUsernames = new Set(newForms.map(form => form.prenom.trim()));
-          console.log('Unique usernames:', uniqueUsernames);
-
-          // Mettre à jour l'état du bouton en fonction des vérifications
-          setNextButtonDisabled(uniqueUsernames.size !== newForms.length || !currentFormFilled);
+        validateForms(newForms);
     };
 
     const handleAddForm = () => {
         if (count < selectedOption) {
-            // Ajoutez le nouveau formulaire
-            const newForms = [...forms, { prenom: '', motDePasse: '', classe: ''}];
+            const newForms = [...forms, { prenom: '', motDePasse: '', classe: '' }];
             setForms(newForms);
             setCount(count + 1);
-            // Vérifiez si tous les formulaires ont au moins un champ rempli
-            const allFormsFilled = newForms.every(form => Object.values(form).some(val => val.trim().length > 0));
-            console.log('All forms filled:', allFormsFilled);
-
-            const uniqueUsernames = new Set(newForms.map(form => form.prenom.trim()));
-            console.log('Unique usernames:', uniqueUsernames);
-
-            // Mettre à jour l'état du bouton en fonction des vérifications
-            setNextButtonDisabled(!allFormsFilled || uniqueUsernames.size !== newForms.length);
+            validateForms(newForms);
         }
-    }
+    };
 
-    const handleClasseChange = (index, value) => {
-        const newForms = [...forms];
-        newForms[index]['classe'] = value;
-        setForms(newForms);
+    const validateForms = (forms) => {
+        const allFormsFilled = forms.every(form => Object.values(form).every(val => val.trim().length > 0));
+        const uniqueUsernames = new Set(forms.map(form => form.prenom.trim())).size === forms.length;
+        setNextButtonDisabled(!(allFormsFilled && uniqueUsernames));
     };
 
     const handleNextButton = async () => {
@@ -169,7 +150,7 @@ const MesEnfants = ({ navigation }) => {
                             onChildDataChange={handleChildDataChange}
                             formData={form}
                             onImageSelect={handleImageSelect}
-                            onClasseChange={(value) => handleClasseChange(index, value)}
+                            onClasseChange={(value) => handleChildDataChange(index, 'classe', value)}
                             showAddButton={showAddButton && count < selectedOption}
                             count={count}
                         />
@@ -182,7 +163,6 @@ const MesEnfants = ({ navigation }) => {
                                     <Text style={styles.textbuttom}>AJOUTER UN COMPTE ENFANT</Text>
                                 </TouchableOpacity>
                             )}
-
                         </View>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
                             <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row' }}>
@@ -191,7 +171,7 @@ const MesEnfants = ({ navigation }) => {
                             </TouchableOpacity>
                             {!showAddButton && (
                                 <TouchableOpacity
-                                    style={[styles.buttom, { opacity: nextButtonDisabled ? 0.5 : 1 }]}
+                                    style={[styles.buttom, { opacity: !nextButtonDisabled ? 1 : 0.5 }]}
                                     onPress={handleNextButton}
                                     disabled={nextButtonDisabled}
                                 >
@@ -199,7 +179,6 @@ const MesEnfants = ({ navigation }) => {
                                     <AntDesign name="right" selectable={true} style={styles.iconRight} />
                                 </TouchableOpacity>
                             )}
-
                         </View>
                     </View>
                 </ScrollView>
