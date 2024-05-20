@@ -13,7 +13,7 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { axiosProvider } from "../http/httpService";
 import styles from "../EspaceparentEnfants/styles";
-import { AntDesign ,MaterialCommunityIcons} from "@expo/vector-icons";
+import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import JWT from "expo-jwt";
 
@@ -22,12 +22,17 @@ const ListExercices = ({ route, navigation }) => {
     const [refreshing, setRefreshing] = useState(false);
     const [exercises, setExercises] = useState([]);
     const [backPackItems, setBackPackItems] = useState({});
+    const [selected, setselected] = useState(false); 
+    const [selectedBackPackId, setSelectedBackPackId] = useState(null); // Définir selectedBackPackId
+
+    const childId = global.selectedChildId; // ou utilisez le childId approprié
 
     const fetchExercisesByCategory = async () => {
         try {
             const token = await AsyncStorage.getItem('jwtToken');
             const response = await axiosProvider.getWithToken(`exercises/byCategory?category=${selectedCategory}`, token);
             if (response.data && Array.isArray(response.data)) {
+            
                 const exercisesWithLocalImages = await Promise.all(response.data.map(async (exercise) => {
                     if (exercise.image) {
                         const localImageUri = await saveImageToLocal(exercise.image, `exercises_${exercise.id}_${Date.now()}.jpg`);
@@ -35,8 +40,9 @@ const ListExercices = ({ route, navigation }) => {
                     }
                     return exercise;
                 }));
-
+            
                 setExercises(exercisesWithLocalImages);
+                
             } else {
                 console.error("fetchExercisesByCategory: Erreur dans la réponse du serveur");
             }
@@ -50,31 +56,55 @@ const ListExercices = ({ route, navigation }) => {
             const token = await AsyncStorage.getItem('jwtToken');
             const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
             const parentId = decodedToken.sub;
-            const childId = global.selectedChildId;
             const dto = {
                 parentId,
-                childId,
+                childId, // Utiliser le childId approprié
                 exerciseId: [exerciseId],
             };
             const response = await axiosProvider.postWithToken(`backpack/addToBackPack`, dto, token);
+        
+            // Mettre à jour l'état de l'exercice spécifique dans backPackItems
             setBackPackItems(prevItems => ({ ...prevItems, [exerciseId]: true }));
-            console.log(response.data);
+            await AsyncStorage.setItem(`backPack_${childId}_${exerciseId}`, "true");
+
+            setSelectedBackPackId(response.data.id);
+
             return response.data;
         } catch (error) {
             console.error(error.message);
         }
     };
 
-    const removeFromBackPack = async (exerciseId) => {
+    const deleteFromBackPack = async (backPackId, exerciseId) => {
         try {
             const token = await AsyncStorage.getItem('jwtToken');
-            await axiosProvider.delete(`backpack/removeFromBackPack/${exerciseId}`, token);
-
+            await axiosProvider.delete(`backpack/removeFromBackPack?idBackPack=${backPackId}&idExercise=${exerciseId}`, token);
             setBackPackItems(prevItems => ({ ...prevItems, [exerciseId]: false }));
+            await AsyncStorage.setItem(`backPack_${childId}_${exerciseId}`, "false");
         } catch (error) {
             console.error(error.message);
         }
     };
+
+    useEffect(() => {
+        const loadBackPackState = async () => {
+            try {
+                const keys = await AsyncStorage.getAllKeys();
+                const backPackStates = await AsyncStorage.multiGet(keys.filter(key => key.startsWith(`backPack_${childId}_`)));
+                const stateObject = backPackStates.reduce((acc, [key, value]) => {
+                    const exerciseId = key.split("_")[2];
+                    acc[exerciseId] = value === "true";
+                    return acc;
+                }, {});
+                setBackPackItems(stateObject);
+            } catch (error) {
+                console.error(error.message);
+            }
+        };
+    
+        loadBackPackState();
+    }, [childId]);
+    
 
     const saveImageToLocal = async (base64Image, fileName) => {
         const path = `${FileSystem.documentDirectory}${fileName}`;
@@ -96,7 +126,7 @@ const ListExercices = ({ route, navigation }) => {
 
     const renderExerciceItem = ({ item }) => {
         const isInBackPack = backPackItems[item.id] || false;
-
+    
         return (
             <View style={styles.container}>
                 <View style={styles.box}>
@@ -107,15 +137,16 @@ const ListExercices = ({ route, navigation }) => {
                             <Text style={styles.text}>{item.description}</Text>
                         </View>
                     </View>
-
-                    <TouchableOpacity onPress={() => isInBackPack ? removeFromBackPack(item.id) : addBackPack(item.id)}>
+    
+                    {/* Afficher l'icône appropriée en fonction de l'état de l'exercice */}
+                    <TouchableOpacity onPress={() => isInBackPack ? deleteFromBackPack(selectedBackPackId, item.id) : addBackPack(item.id)}>
                         <MaterialCommunityIcons name={isInBackPack ? "heart-off" : "heart"} size={24} color="black" />
                     </TouchableOpacity>
                 </View>
             </View>
         );
     };
-
+    
     return (
         <SafeAreaView style={style.container}>
             <View>
@@ -143,16 +174,16 @@ const style = StyleSheet.create({
     container: {
         flexGrow: 1,
         backgroundColor: '#FFFFFF',
-        width:'100%',
-        height:'100%',
+        width: '100%',
+        height: '100%',
     },
-   nameCategory:{
-       color: '#242F65',
-       fontSize: 26,
-       marginTop: Platform.OS === "ios" ? 7 : 45,
-       fontFamily: 'bold'
-   },
-    iconGauche :{
+    nameCategory: {
+        color: '#242F65',
+        fontSize: 26,
+        marginTop: Platform.OS === "ios" ? 7 : 45,
+        fontFamily: 'bold'
+    },
+    iconGauche: {
         fontFamily: 'bold',
         fontSize: 24,
         color: '#293772',

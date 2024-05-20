@@ -37,6 +37,8 @@ const styles = StyleSheet.create({
     },
     errorContainer: {
         flex: 1,
+        alignSelf:"center",
+        marginTop:220,
         justifyContent: 'center',
         alignItems: 'center',
     },

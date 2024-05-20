@@ -66,17 +66,23 @@ const BackPack = ({ navigation }) => {
             console.log("selectedChildId:", selectedChildId);
             const response = await axiosProvider.getWithToken(`backpack/getBackPackByChild/${selectedChildId}`, token);
             console.log("Response from server:", response.data);
-
-            if (response.data && Array.isArray(response.data[0]?.exercises)) {
-                const exercisesWithLocalImages = await Promise.all(response.data[0].exercises.map(async (exercise) => {
-                    if (exercise.image) {
-                        const localImageUri = await saveImageToLocal(exercise.image, `exercises_${exercise.id}_${Date.now()}.jpg`);
-                        return { ...exercise, image: localImageUri };
-                    }
-                    return exercise;
-                }));
-                setBackPackData(exercisesWithLocalImages);
-                setSelectedBackPackId(response.data[0].id);
+    
+            if (response.data && response.data.length > 0) {
+                const backpack = response.data[0];
+                if (Array.isArray(backpack.exercises)) {
+                    const exercisesWithLocalImages = await Promise.all(backpack.exercises.map(async (exercise) => {
+                        if (exercise.image) {
+                            const localImageUri = await saveImageToLocal(exercise.image, `exercises_${exercise.id}_${Date.now()}.jpg`);
+                            return { ...exercise, image: localImageUri };
+                        }
+                        return exercise;
+                    }));
+                    setBackPackData(exercisesWithLocalImages);
+                    setSelectedBackPackId(backpack.id);
+                } else {
+                    setBackPackData([]);
+                    setSelectedBackPackId(backpack.id);
+                }
             } else {
                 setBackPackData([]);
                 setSelectedBackPackId(null);
@@ -85,6 +91,7 @@ const BackPack = ({ navigation }) => {
             console.error(error.message);
         }
     };
+    
 
     const removeFromBackPack = async (exerciseId) => {
         try {
@@ -94,6 +101,7 @@ const BackPack = ({ navigation }) => {
             {
                 return prevData.filter((item) => item.id !== exerciseId)
             });
+    
         } catch (error) {
             console.error(error.message);
         }
@@ -153,25 +161,23 @@ const BackPack = ({ navigation }) => {
             <View>
                 <ChildrenList setSelectedChild={setSelectedChild} onSelectChildId={handleSelectChildId} />
             </View>
-            {backPackData.length === 0 ? (
-                <View style={styles.errorContainer}>
-                    <TouchableOpacity onPress={getBackPack}>
+            <FlatList
+                data={backPackData}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.id.toString()}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+                ListEmptyComponent={() => (
+                    <View style={styles.errorContainer}>
                         <Image source={require('../assets/images/folder-type.png')} style={styles.imageError} />
-                    </TouchableOpacity>
-                    <Text style={styles.errorText}>Aucun exercice dans le backpack.</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={backPackData}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.id.toString()}
-                    refreshControl={
-                        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                    }
-                />
-            )}
+                        <Text style={styles.errorText}>Aucun exercice dans le backpack.</Text>
+                    </View>
+                )}
+            />
         </SafeAreaView>
     );
+    
 
 };
 const style = StyleSheet.create({
