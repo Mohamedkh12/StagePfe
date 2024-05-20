@@ -20,6 +20,7 @@ import JWT from "expo-jwt";
 
 const BackPack = ({ navigation }) => {
     const [selectedChildId, setSelectedChildId] = useState(null);
+    const [selectedBackPackId, setSelectedBackPackId] = useState(null);
     const [refreshing, setRefreshing] = useState(false);
     const [backPackData, setBackPackData] = useState([]);
     const [initialChildName, setInitialChildName] = useState(null);
@@ -75,8 +76,10 @@ const BackPack = ({ navigation }) => {
                     return exercise;
                 }));
                 setBackPackData(exercisesWithLocalImages);
-            }else{
+                setSelectedBackPackId(response.data[0].id);
+            } else {
                 setBackPackData([]);
+                setSelectedBackPackId(null);
             }
         } catch (error) {
             console.error(error.message);
@@ -86,10 +89,10 @@ const BackPack = ({ navigation }) => {
     const removeFromBackPack = async (exerciseId) => {
         try {
             const token = await AsyncStorage.getItem('jwtToken');
-            await axiosProvider.delete(`backpack/removeFromBackPack?idExercise=${exerciseId}`, token);
+            await axiosProvider.delete(`backpack/removeFromBackPack?idBackPack=${selectedBackPackId}&idExercise=${exerciseId}`, token);
             setBackPackData((prevData) =>
             {
-                return prevData.filter((item )=> item.id !== exerciseId)
+                return prevData.filter((item) => item.id !== exerciseId)
             });
         } catch (error) {
             console.error(error.message);
@@ -152,7 +155,9 @@ const BackPack = ({ navigation }) => {
             </View>
             {backPackData.length === 0 ? (
                 <View style={styles.errorContainer}>
-                    <Image source={require('../assets/images/folder-type.png')} style={styles.imageError} />
+                    <TouchableOpacity onPress={getBackPack}>
+                        <Image source={require('../assets/images/folder-type.png')} style={styles.imageError} />
+                    </TouchableOpacity>
                     <Text style={styles.errorText}>Aucun exercice dans le backpack.</Text>
                 </View>
             ) : (
