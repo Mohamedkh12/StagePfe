@@ -115,13 +115,7 @@ const AddChild = ({ navigation }) => {
         setIdentifiant("");
         setPassword("");
     };
-    const formDataToJson = (formData) => {
-        const jsonObject = {};
-        for (const [key, value] of formData._parts) {
-            jsonObject[key] = value;
-        }
-        return jsonObject;
-    };
+
     // Fonction pour soumettre le formulaire
     const onSubmit = async () => {
         // Réinitialiser les messages d'erreur
@@ -267,8 +261,8 @@ const AddChild = ({ navigation }) => {
                         {/* Classe */}
                         <View>
                             <Text style={styles.label}>Classe*</Text>
-                            <View style={styles.inputwrapper}>
-                                <View style={styles.inputcontent}>
+                            <View style={styles.classInputWrapper}>
+                                <View style={styles.classInputContent}>
                                     <RNPickerSelect
                                         value={classe}
                                         onValueChange={(value) => setClasse(value)}
@@ -282,7 +276,7 @@ const AddChild = ({ navigation }) => {
                                         ]}
                                     />
                                 </View>
-                                <AntDesign name="down" size={24} color="black" />
+                                {Platform.OS === 'ios' && <AntDesign name="down" size={24} color="black" style={styles.icon} />}
                             </View>
                             {classeError ? <Text style={{ color: 'red' }}>{classeError}</Text> : null}
                         </View>

@@ -1,4 +1,15 @@
-import {Alert, FlatList, Image, RefreshControl, SafeAreaView, Text, TouchableOpacity, View} from "react-native";
+import {
+    Alert,
+    FlatList,
+    Image,
+    RefreshControl,
+    SafeAreaView,
+    Text,
+    TouchableOpacity,
+    View,
+    StyleSheet,
+    Platform
+} from "react-native";
 import React, {useCallback, useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {axiosProvider} from "../../http/httpService";
@@ -116,11 +127,11 @@ const AdminExercices = ({route,navigation}) => {
         );
     };
     return(
-        <SafeAreaView style={{flex: 1, flexGrow: 1, backgroundColor: '#FFFFFF', marginBottom: 70}}>
+        <SafeAreaView style={style.container}>
                 <View >
                     <TouchableOpacity onPress={() => navigation.goBack()} style={{flexDirection:'row',marginRight:20,}}>
-                        <AntDesign name="left" selectable={true} style={{ color:'#242F65', fontSize:26,marginTop:15, marginLeft:15, fontFamily:'bold'}} />
-                        <Text style={{fontFamily:'bold', fontSize:24, color:'#293772', lineHeight:29, marginTop:15, marginLeft:3}}>{selectedCategory}</Text>
+                        <AntDesign name="left" selectable={true} style={style.iconGauche} />
+                        <Text style={style.nameCategory}>{selectedCategory}</Text>
                     </TouchableOpacity>
                 </View>
                 <FlatList
@@ -132,7 +143,7 @@ const AdminExercices = ({route,navigation}) => {
                     }
                 />
             <TouchableOpacity
-                style={{ flexDirection: "row", justifyContent: 'flex-end', marginRight: 20 ,paddingBottom:5}}
+                style={style.iconAdd}
                 onPress={() => navigation.navigate('AddExercices')}
             >
                     <AntDesign name="pluscircle" color={"#242F65"} size={50}  />
@@ -141,4 +152,35 @@ const AdminExercices = ({route,navigation}) => {
   )
 }
 
+
+const style = StyleSheet.create({
+    container:{
+        flexGrow: 1,
+        backgroundColor: '#FFFFFF',
+        marginBottom: 70,
+        width:'100%',
+        height:'100%',
+    },
+    iconGauche:{
+        color:'#242F65',
+        fontSize:26,
+        marginTop:Platform.OS === "ios" ? 20: 50,
+        marginLeft:15,
+        fontFamily:'bold'
+    },
+    nameCategory:{
+        fontFamily:'bold',
+        fontSize:24,
+        color:'#293772',
+        lineHeight:29,
+        marginTop:Platform.OS === "ios" ? 20: 45,
+        marginLeft:3
+    },
+    iconAdd:{
+        flexDirection: "row",
+        justifyContent: 'flex-end',
+        marginRight: 20,
+        marginBottom:70
+    },
+})
 export default AdminExercices

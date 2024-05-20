@@ -47,9 +47,9 @@ const App = ({navigation}) => {
         <NavigationContainer onLayout={onLayoutRootView}>
             <Stack.Navigator initialRouteName={'SNSginIn'}>
                 <Stack.Screen name="SNSginIn" component={SNSginIn} options={{ headerShown: false }} />
-                <Stack.Screen name="ButtomTabNavigation" component={ButtomTabNavigation} options={{ headerShown: false }} />
-                <Stack.Screen name="AdminStack" component={AdminStack} options={{ headerShown: false }} />
-                <Stack.Screen name={"ChildStack"} component={ChildStack} options={{ headerShown: false }} />
+                <Stack.Screen name="ButtomTabNavigation" component={ButtomTabNavigation} options={{ headerShown: false,gestureEnabled: false, }} />
+                <Stack.Screen name="AdminStack" component={AdminStack} options={{ headerShown: false,gestureEnabled: false, }} />
+                <Stack.Screen name={"ChildStack"} component={ChildStack} options={{ headerShown: false,gestureEnabled: false, }} />
             </Stack.Navigator>
 
         </NavigationContainer>

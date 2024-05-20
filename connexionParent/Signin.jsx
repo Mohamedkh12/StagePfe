@@ -28,7 +28,7 @@ const Signin = ({ navigation }) => {
           username:'admin',
           password:'admin'
         });
-        await AsyncStorage.setItem('TokenAdmin', authAdmin.data.tokenAdmin);
+        await AsyncStorage.setItem('TokenAdmin', authAdmin.data.access_token);
         console.log(authAdmin.data)
         navigation.navigate('AdminStack');
         return;
@@ -46,7 +46,7 @@ const Signin = ({ navigation }) => {
         } if (userRole === 2) {
           navigation.navigate('ButtomTabNavigation');
         } if(userRole ===1){
-          await AsyncStorage.setItem('TokenAdmin', response.data.tokenAdmin);
+          await AsyncStorage.setItem('TokenAdmin', response.data.access_token);
           console.log(response.data)
           navigation.navigate('AdminStack');
         }

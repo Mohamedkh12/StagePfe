@@ -1,45 +1,15 @@
 import {StyleSheet} from "react-native";
 
-
-const style = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
         width: '100%',
         backgroundColor: '#FFFFFF',
         padding: 10,
     },
-    content:{
-        flex: 1,
-        flexGrow: 1,
+    content: {
+
+        width: '100%',
         backgroundColor: '#FFFFFF',
-        marginBottom: 70
-    },
-    childContainer: {
-        flexDirection: 'row',
-        marginBottom: 10,
-        marginTop: 20,
-        marginLeft: 20,
-        paddingHorizontal: 10,
-    },
-    childItem: {
-        fontSize: 18,
-        lineHeight: 22,
-        marginLeft: 40,
-    },
-    defaultChild: {
-        color: '#707070',
-    },
-    selectedChild: {
-        color: '#242F65',
-    },
-    selectedLine: {
-        height: 1,
-        backgroundColor: '#242F65',
-        marginTop: 5,
-        width: 50,
-        marginLeft: 40,
-    },
-    itemSeparator: {
-        height: 10,
     },
     text: {
         fontFamily: 'regular',
@@ -47,45 +17,42 @@ const style = StyleSheet.create({
         color: '#2C2C2C',
         lineHeight: 22,
         marginTop: 10,
-        marginLeft: 25
     },
     box: {
         flex: 1,
         width: '90%',
         marginLeft: '5%',
-        height: 'auto',
-        marginTop: 17,
         backgroundColor: '#FFFFFF',
         borderWidth: 1,
         borderColor: '#242F65',
         borderRadius: 8,
-        flexDirection: 'row',
+        flexDirection: 'column', // Change from 'row' to 'column' for testing
         padding: 10,
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'center',
     },
     icon: {
-        marginLeft:30,
-        marginTop: 25
+        marginLeft: 10,
+        marginTop: 10,
     },
-    errorContainer:{
+    errorContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    errorText:{
+    errorText: {
         fontFamily: 'regular',
         fontSize: 15,
         color: '#2C2C2C',
         lineHeight: 22,
-        marginBottom: 30
+        marginBottom: 30,
     },
     imageError: {
         width: 100,
         height: 100,
         resizeMode: 'contain',
-        marginBottom: 20
-    }
-})
+        marginBottom: 20,
+    },
+});
 
-export default style
+export default styles;

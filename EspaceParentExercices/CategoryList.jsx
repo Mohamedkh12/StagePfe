@@ -60,7 +60,8 @@ const CategoryList = ({ navigation, selectedChild }) => {
 
     const renderCategory = ({ item }) => {
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('ListExercices', { selectedCategory: item })}>
+            <TouchableOpacity
+                onPress={() => navigation.navigate('ListExercices', { selectedCategory: item })}>
                 <View style={styles.box}>
                     <Text style={styles.h2}>{item}</Text>
                     <Text style={styles.text}>{memoizedCountExercice[item]} exercices</Text>
@@ -70,7 +71,7 @@ const CategoryList = ({ navigation, selectedChild }) => {
     };
 
     return (
-        <View>
+        <View style={{width:'100%',height:'100%',backgroundColor: '#FFFFFF'}}>
             <FlatList
                 data={memoizedCategories}
                 renderItem={renderCategory}

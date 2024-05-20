@@ -1,5 +1,15 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { FlatList, Image, RefreshControl, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import {
+    FlatList,
+    Image,
+    RefreshControl,
+    SafeAreaView,
+    Text,
+    TouchableOpacity,
+    View,
+    StyleSheet,
+    Platform
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { axiosProvider } from "../http/httpService";
 import styles from "../EspaceparentEnfants/styles";
@@ -107,11 +117,14 @@ const ListExercices = ({ route, navigation }) => {
     };
 
     return (
-        <SafeAreaView style={{ flex: 1, flexGrow: 1, backgroundColor: '#FFFFFF', marginBottom: 70 }}>
+        <SafeAreaView style={style.container}>
             <View>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', marginRight: 20, }}>
-                    <AntDesign name="left" selectable={true} style={{ color: '#242F65', fontSize: 26, marginTop: 15, marginLeft: 15, fontFamily: 'bold' }} />
-                    <Text style={{ fontFamily: 'bold', fontSize: 24, color: '#293772', lineHeight: 29, marginTop: 15, marginLeft: 3 }}>{selectedCategory}</Text>
+                    <AntDesign name="left" selectable={true} style={style.iconGauche} />
+                    <Text
+                        style={style.nameCategory}>
+                        {selectedCategory}
+                    </Text>
                 </TouchableOpacity>
             </View>
             <FlatList
@@ -126,4 +139,26 @@ const ListExercices = ({ route, navigation }) => {
     );
 }
 
+const style = StyleSheet.create({
+    container: {
+        flexGrow: 1,
+        backgroundColor: '#FFFFFF',
+        width:'100%',
+        height:'100%',
+    },
+   nameCategory:{
+       color: '#242F65',
+       fontSize: 26,
+       marginTop: Platform.OS === "ios" ? 7 : 45,
+       fontFamily: 'bold'
+   },
+    iconGauche :{
+        fontFamily: 'bold',
+        fontSize: 24,
+        color: '#293772',
+        lineHeight: 29,
+        marginTop: Platform.OS === "ios" ? 7 : 55,
+        marginLeft: 13
+    }
+})
 export default ListExercices;

@@ -2,9 +2,15 @@ import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import AdminExercices from "./Exercices/AdminExercices" ;
 import ListChildParent from "./ListUsers/ListChildParent";
 import {FontAwesome} from "@expo/vector-icons";
-import {Image} from "react-native";
+import {Image, Platform} from "react-native";
 import CategoryExercices from "./Exercices/CategoryExercice";
-import ClassList from "./Exercices/ClassList";
+import ParentProfil from "../EspaceParentProfil/ParentProfil";
+import AdminProfile from "./Profile/AdminProfile";
+import {createStackNavigator} from "@react-navigation/stack";
+import AddExercices from "./Exercices/AddExercices";
+import EditExercice from "./Exercices/EditExercice";
+import React from "react";
+
 
 const screenOptions = {
     tabBarShowLabel: true,
@@ -17,7 +23,7 @@ const screenOptions = {
         left:0,
         right:0,
         elevation:0,
-        height:70,
+        height:Platform.OS === "ios" ? 90 : 60
     },
     tabBarLabelStyle: {
         fontFamily:'regular',
@@ -25,26 +31,47 @@ const screenOptions = {
         color:'#707070',
         lineHeight:15,
         textAlign:'center',
-        marginBottom:10
+        marginBottom:Platform.OS === "ios" ? 15: 10,
 
     }
 }
 const Tab=createBottomTabNavigator()
+const Stack = createStackNavigator();
+
+const ExercicesStack = () => {
+    return (
+        <Stack.Navigator>
+            <Stack.Screen name="CategoryExercices" component={CategoryExercices} options={{headerShown: false, gestureEnabled: false,}}/>
+            <Stack.Screen name="AdminExercices" component={AdminExercices} options={{headerShown: false, gestureEnabled: false,}}/>
+        </Stack.Navigator>
+    )
+}
 const AdminStack = () => {
   return(
       <Tab.Navigator screenOptions={screenOptions}>
-          <Tab.Screen name={'CategoryExercices'} component={CategoryExercices} options={{title:'Exercices',
+          <Tab.Screen name={'ExercicesStack'} component={ExercicesStack} options={{title:'Exercices',
               tabBarIcon: () => (
                   <Image
-                      source={require('../assets/images/exercice.svg')}
+                      source={require('../assets/images/apprentissage-en-ligne.png')}
                       style={{ width: 24, height: 24, resizeMode: 'contain' }}
                   />
               )}}
          />
           <Tab.Screen name={'Profile'} component={ListChildParent} options={{title:'Users',
               tabBarIcon:()=>{
-                  return(<FontAwesome name="user" size={24} color="black" />)
+                  return <Image
+                      source={require('../assets/images/multiple-users-silhouette.png')}
+                      style={{ width: 24, height: 24, resizeMode: 'contain' }}
+                  />
               }}}/>
+          <Tab.Screen
+              name="AdminProfile"
+              component={AdminProfile}
+              options={{
+                  title: 'Compte Admin',
+                  tabBarIcon: () => <FontAwesome name="user" size={24} color="black" />,
+              }}
+          />
       </Tab.Navigator>
   )
 }

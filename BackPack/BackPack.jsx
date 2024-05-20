@@ -1,4 +1,14 @@
-import { FlatList, Image, RefreshControl, SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import {
+    FlatList,
+    Image,
+    Platform,
+    RefreshControl,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from "react-native";
 import ChildrenList from "../EspaceParentExercices/ChildrenList";
 import React, { useCallback, useEffect, useState } from "react";
 import styles from "./backPack.Style";
@@ -17,10 +27,6 @@ const BackPack = ({ navigation }) => {
 
     const getToken = async (key) => {
         return await AsyncStorage.getItem(key);
-    };
-
-    const handleSelectChildId = (childId) => {
-        setSelectedChildId(childId);
     };
 
     useEffect(() => {
@@ -42,6 +48,10 @@ const BackPack = ({ navigation }) => {
 
         fetchData();
     }, []);
+
+    const handleSelectChildId = (childId) => {
+        setSelectedChildId(childId);
+    };
 
     useEffect(() => {
         if (selectedChildId !== null) {
@@ -65,6 +75,8 @@ const BackPack = ({ navigation }) => {
                     return exercise;
                 }));
                 setBackPackData(exercisesWithLocalImages);
+            }else{
+                setBackPackData([]);
             }
         } catch (error) {
             console.error(error.message);
@@ -134,12 +146,14 @@ const BackPack = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.content}>
-            <ChildrenList setSelectedChild={setSelectedChild} onSelectChildId={handleSelectChildId} />
+        <SafeAreaView style={style.container}>
+            <View>
+                <ChildrenList setSelectedChild={setSelectedChild} onSelectChildId={handleSelectChildId} />
+            </View>
             {backPackData.length === 0 ? (
                 <View style={styles.errorContainer}>
                     <Image source={require('../assets/images/folder-type.png')} style={styles.imageError} />
-                    <Text style={styles.errorText}>Aucun élément dans le backpack.</Text>
+                    <Text style={styles.errorText}>Aucun exercice dans le backpack.</Text>
                 </View>
             ) : (
                 <FlatList
@@ -155,5 +169,19 @@ const BackPack = ({ navigation }) => {
     );
 
 };
-
+const style = StyleSheet.create({
+    container: {
+        flex: 1,
+        flexGrow: 1,
+        backgroundColor: '#FFFFFF',
+        marginBottom: 70
+    },
+    h1:{
+        fontFamily: 'bold',
+        fontSize: 24, color: '#293772',
+        lineHeight: 29,
+        marginTop: Platform.OS === "ios" ? 15 : 47,
+        marginLeft: 40
+    }
+})
 export default BackPack;

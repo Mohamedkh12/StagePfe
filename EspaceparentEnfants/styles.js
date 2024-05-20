@@ -2,13 +2,11 @@ import {StyleSheet} from "react-native";
 const styles=StyleSheet.create({
     container:{
         width:'100%',
-        height:'100%',
         backgroundColor: '#FFFFFF',
     },
     box: {
         width: '90%',
         marginLeft: '5%',
-
         marginTop: 25,
         height: 'auto',
         backgroundColor: '#FFFFFF',
@@ -32,7 +30,7 @@ const styles=StyleSheet.create({
         fontSize:26,
         color:'#293772',
         lineHeight:32,
-        marginTop:30,
+        marginTop:45,
         marginLeft:25,
     },
     h2:{

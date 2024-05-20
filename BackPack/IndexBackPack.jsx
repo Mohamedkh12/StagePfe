@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { SafeAreaView, Text, TouchableOpacity, View, StyleSheet } from 'react-native';
-import ChildrenList from './ChildrenList';
-import CategoryList from './CategoryList';
-import styles from './styles';
+import styles from '../EspaceParentExercices/styles';
 import { axiosProvider } from "../http/httpService";
 import JWT from "expo-jwt";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import BackPack from "./BackPack";
+import ChildrenList from "../EspaceParentExercices/ChildrenList";
 
-const ParentExercices = ({ navigation }) => {
+const IndexBackPack = ({ navigation }) => {
     const [selectedChild, setSelectedChild] = useState(null);
     const [selectedChildId, setSelectedChildId] = useState(null);
     const [initialChildName, setInitialChildName] = useState(null);
@@ -48,11 +48,9 @@ const ParentExercices = ({ navigation }) => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <View style={localStyles.rowContainer}>
-                <ChildrenList setSelectedChild={setSelectedChild} onSelectChildId={handleSelectChildId} />
-            </View>
-            <CategoryList navigation={navigation} selectedChild={selectedChild} />
+        <SafeAreaView>
+
+            <BackPack navigation={navigation} selectedChild={selectedChild} />
         </SafeAreaView>
     );
 };
@@ -74,4 +72,4 @@ const localStyles = StyleSheet.create({
     },
 });
 
-export default ParentExercices;
+export default IndexBackPack;

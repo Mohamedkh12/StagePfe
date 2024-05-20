@@ -11,7 +11,7 @@ import {
     Text,
     View,
     ActivityIndicator,
-    TouchableOpacity
+    TouchableOpacity, Platform,StyleSheet
 } from "react-native";
 import styles from "../../BackPack/backPack.Style";
 import {AntDesign} from "@expo/vector-icons";
@@ -117,10 +117,10 @@ const BackPackEnfant = ({route,navigation}) => {
     }
 
     return (
-        <SafeAreaView  style={{ flex: 1, flexGrow: 1, backgroundColor: '#FFFFFF', marginBottom: 70 }}>
+        <SafeAreaView  style={style.container}>
             <View>
                 <TouchableOpacity onPress={() => navigation.goBack()} >
-                    <Text style={{ fontFamily: 'bold', fontSize: 24, color: '#293772', lineHeight: 29, marginTop: 15, marginLeft: 40 }}>BackPack</Text>
+                    <Text style={style.h1}>BackPack</Text>
                 </TouchableOpacity>
             </View>
             <FlatList
@@ -135,4 +135,19 @@ const BackPackEnfant = ({route,navigation}) => {
     );
 };
 
+const style = StyleSheet.create({
+    container: {
+        flex: 1,
+        flexGrow: 1,
+        backgroundColor: '#FFFFFF',
+        marginBottom: 70
+    },
+    h1:{
+        fontFamily: 'bold',
+        fontSize: 24, color: '#293772',
+        lineHeight: 29,
+        marginTop: Platform.OS === "ios" ? 15 : 47,
+        marginLeft: 40
+    }
+})
 export default BackPackEnfant;

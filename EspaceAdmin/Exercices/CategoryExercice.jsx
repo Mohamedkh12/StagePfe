@@ -6,10 +6,11 @@ import {
     View,
     StyleSheet,
     FlatList,
-    RefreshControl
+    RefreshControl, Platform
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { axiosProvider } from '../../http/httpService';
+import {AntDesign} from "@expo/vector-icons";
 
 const CategoryExercices = ({navigation}) => {
     const [categories, setCategories] = useState([]);
@@ -81,6 +82,12 @@ const CategoryExercices = ({navigation}) => {
                 }
 
             />
+            <TouchableOpacity
+                style={{ flexDirection: "row", justifyContent: 'flex-end', marginRight: 20 ,paddingBottom:70}}
+                onPress={() => navigation.navigate('AddExercices')}
+            >
+                <AntDesign name="pluscircle" color={"#242F65"} size={50}  />
+            </TouchableOpacity>
         </SafeAreaView>
     );
 };
@@ -110,7 +117,7 @@ const styles = StyleSheet.create({
         fontSize:26,
         color:'#293772',
         lineHeight:32,
-        marginTop:30,
+        marginTop:Platform.OS === "ios" ? 22: 45,
         marginLeft:25,
     },
     h3: {
