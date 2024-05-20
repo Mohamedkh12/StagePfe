@@ -23,9 +23,9 @@ const ListExercices = ({ route, navigation }) => {
     const [exercises, setExercises] = useState([]);
     const [backPackItems, setBackPackItems] = useState({});
     const [selected, setselected] = useState(false); 
-    const [selectedBackPackId, setSelectedBackPackId] = useState(null); // Définir selectedBackPackId
+    const [selectedBackPackId, setSelectedBackPackId] = useState(null);
 
-    const childId = global.selectedChildId; // ou utilisez le childId approprié
+    const childId = global.selectedChildId;
 
     const fetchExercisesByCategory = async () => {
         try {
