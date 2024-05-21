@@ -164,11 +164,7 @@ const MesEnfants = ({ navigation }) => {
                                 </TouchableOpacity>
                             )}
                         </View>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 }}>
-                            <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row' }}>
-                                <AntDesign name="left" selectable={true} style={styles.icon(15, 5)} />
-                                <Text style={styles.lienRetour}>Retour</Text>
-                            </TouchableOpacity>
+                        <View style={{ justifyContent:"flex-end", marginTop: 30,alignSelf:"flex-end" }}>
                             {!showAddButton && (
                                 <TouchableOpacity
                                     style={[styles.buttom, { opacity: !nextButtonDisabled ? 1 : 0.5 }]}
