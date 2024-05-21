@@ -190,11 +190,7 @@ const Paiement = forwardRef((props, ref) => {
                             name={'cvc'}
                         />
                     </View>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 30, }}>
-                        <TouchableOpacity onPress={() => navigation.goBack()}>
-                            <AntDesign name="left" selectable={true} style={styles.icon} />
-                            <Text style={styles.lienRetour}>Retour</Text>
-                        </TouchableOpacity>
+                    <View style={{ justifyContent:"flex-end", marginTop: 30,alignSelf:"flex-end" }}>
                         <TouchableOpacity style={styles.buttom} onPress={handleSubmit(onSubmit)}>
                             <Text style={styles.textbuttom}>SUIVANT</Text>
                             <AntDesign name="right" selectable={true} style={styles.iconRight} />
