@@ -120,7 +120,7 @@ const UpdateCompteChild = ({ route, navigation }) => {
                 navigation.navigate('Enfants')
                 resetForm();
             } else {
-                // Échec de la mise à jour
+
                 Alert.alert('Erreur', 'Échec de la mise à jour du compte. Veuillez réessayer.');
             }
         } catch (error) {
