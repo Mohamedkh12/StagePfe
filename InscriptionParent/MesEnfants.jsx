@@ -12,7 +12,7 @@ import ProgressStepsScreen from "./ProgressStepsScreen";
 const MesEnfants = ({ navigation }) => {
     const [count, setCount] = useState(1);
     const [showAddButton, setShowAddButton] = useState(true);
-    const [forms, setForms] = useState([{ prenom: '', motDePasse: '', classe: '',identifiant : ''}]);
+    const [forms, setForms] = useState([{ prenom: '', motDePasse: '', classe: '', identifiant: '' }]);
     const [selectedImage, setSelectedImage] = useState(null);
     const [nextButtonDisabled, setNextButtonDisabled] = useState(true);
     global.selectedOption =selectedOption
@@ -25,8 +25,10 @@ const MesEnfants = ({ navigation }) => {
         validateForms(forms);
     }, [forms]);
 
-    const handleImageSelect = (uri) => {
-        setSelectedImage(uri);
+    const handleImageSelect = (index, uri) => {
+        const newForms = [...forms];
+        newForms[index].image = uri;
+        setForms(newForms);
     };
 
     const handleCreateChildren = async () => {
@@ -48,9 +50,8 @@ const MesEnfants = ({ navigation }) => {
                 formData.append('password', childData.motDePasse);
                 formData.append('id_parent', parentId);
 
-
-                if (selectedImage) {
-                    const imageUri = selectedImage;
+                if (childData.image) {
+                    const imageUri = childData.image;
 
                     if (Platform.OS === 'ios') {
                         const imageUriParts = imageUri.split('.');
@@ -70,10 +71,13 @@ const MesEnfants = ({ navigation }) => {
                             name: newImageUri.split("/").pop()
                         });
                     }
-                }else formData.append('image',null)
+                } else {
+                    formData.append('image', null);
+                }
+
                 console.log('formData:', formData);
                 const response = await axios.create({
-                    baseURL: 'http://192.168.1.10:3000/',
+                    baseURL: 'http://192.168.1.121:3000/',
                     timeout: 10000,
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -165,7 +169,7 @@ const MesEnfants = ({ navigation }) => {
                             index={index}
                             onChildDataChange={handleChildDataChange}
                             formData={form}
-                            onImageSelect={handleImageSelect}
+                            onImageSelect={(uri) => handleImageSelect(index, uri)}
                             onClasseChange={(value) => handleChildDataChange(index, 'classe', value)}
                             handleIdentifierChange={(value) => handleChildDataChange(index, 'identifiant', value)}
                             showAddButton={showAddButton && count < selectedOption}

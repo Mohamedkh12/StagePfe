@@ -45,27 +45,27 @@ const SNSginIn = () => {
                   <Stack.Screen name="CreateCompte" component={CreateCompte}  options={{ headerShown: false, gestureEnabled: false, }}/>
                   <Stack.Screen name="AbonnementParent" component={AbonnementParent} options={{
                       headerShown: false,
-                      gestureEnabled: false, // Bloquer le retour par geste
+                      gestureEnabled: false,
                        }}/>
                   <Stack.Screen name="CompteParent" component={CompteParent} options={{
                       headerShown: false,
-
+                      gestureEnabled: false,
                   }}/>
                   <Stack.Screen name="Paiement" component={Paiement}  options={{
                       headerShown: false,
-
+                      gestureEnabled: false,
                   }}/>
                   <Stack.Screen name="MesEnfants" component={MesEnfants}  options={{
                       headerShown: false,
-
+                      gestureEnabled: false,
                   }}/>
                   <Stack.Screen name="InfosPersonnelles" component={InfosPersonnelles}  options={{
                       headerShown: false,
-
+                      gestureEnabled: false,
                   }}/>
                   <Stack.Screen name="ButtomTabNavigation" component={ButtomTabNavigation}  options={{
                       headerShown: false,
-
+                      gestureEnabled: false,
                   }}/>
                   <Stack.Screen name="ListExercices" component={ListExercices} options={{headerShown: false}}/>
                   <Stack.Screen name="UpdateCompteChild" component={UpdateCompteChild} options={{ headerShown: false,gestureEnabled: false, }}/>
