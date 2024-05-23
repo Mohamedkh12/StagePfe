@@ -25,8 +25,10 @@ const MesEnfants = ({ navigation }) => {
         validateForms(forms);
     }, [forms]);
 
-    const handleImageSelect = (uri) => {
-        setSelectedImage(uri);
+    const handleImageSelect = (index, uri) => {
+        const newForms = [...forms];
+        newForms[index].image = uri;
+        setForms(newForms);
     };
 
     const handleCreateChildren = async () => {
@@ -161,15 +163,17 @@ const MesEnfants = ({ navigation }) => {
                     </Text>
                     {forms.map((form, index) => (
                         <EnfantForm
+                            <EnfantForm
                             key={index + 1}
                             index={index}
                             onChildDataChange={handleChildDataChange}
                             formData={form}
-                            onImageSelect={handleImageSelect}
+                            onImageSelect={(uri) => handleImageSelect(index, uri)}
                             onClasseChange={(value) => handleChildDataChange(index, 'classe', value)}
                             handleIdentifierChange={(value) => handleChildDataChange(index, 'identifiant', value)}
                             showAddButton={showAddButton && count < selectedOption}
                             count={count}
+                        />
                         />
                     ))}
                     <View>
