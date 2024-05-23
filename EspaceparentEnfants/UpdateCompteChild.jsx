@@ -1,5 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {Alert, Image, KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import styles from "./updateStyle"
 import { AntDesign, Entypo, MaterialIcons } from "@expo/vector-icons";
 import RNPickerSelect from "react-native-picker-select";
@@ -8,6 +18,7 @@ import * as ImageManipulator from "expo-image-manipulator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import JWT from "expo-jwt";
 import { axiosProvider } from "../http/httpService";
+import mime from 'mime';
 
 const UpdateCompteChild = ({ route, navigation }) => {
     const { childId, childName } = route.params;
@@ -78,28 +89,38 @@ const UpdateCompteChild = ({ route, navigation }) => {
             formData.append('email', identifiant);
             formData.append('password', password);
             formData.append('id_parent', parentId);
-            formData.append('roleId', 3);
 
-            if (selectedImage) {
-                const imageUriParts = selectedImage.split('.');
-                const fileExtension = imageUriParts[imageUriParts.length - 1];
+            if(selectedImage) {
+                if(Platform.OS==='ios'){
+                    const imageUriParts = selectedImage.split('.');
+                    const fileExtension = imageUriParts[imageUriParts.length - 1];
 
-                formData.append('image', {
-                    uri: selectedImage,
-                    name: `image.${fileExtension}`,
-                    type: `image/${fileExtension}`,
-                });
+                    formData.append('image', {
+                        uri: selectedImage,
+                        name: `image.${fileExtension}`,
+                        type: `image/${fileExtension}`,
+                    });
+                }if (Platform.OS === 'android') {
+                    if(selectedImage) {
+                        const newImageUri = "file:///" + selectedImage.split("file:/").join("");
+
+                        formData.append('image', {
+                            uri: newImageUri,
+                            type: mime.getType(newImageUri),
+                            name: newImageUri.split("/").pop()
+                        });
+                    }
+                }
             }
-
             const response = await axiosProvider.patch(`parents/updateChild/${childId}`, formData, token);
             console.log(response.data)
 
             if (response.status === 200) {
                 console.log(response.data)
-                navigation.goBack();
+                navigation.navigate('Enfants')
                 resetForm();
             } else {
-                // Échec de la mise à jour
+
                 Alert.alert('Erreur', 'Échec de la mise à jour du compte. Veuillez réessayer.');
             }
         } catch (error) {
