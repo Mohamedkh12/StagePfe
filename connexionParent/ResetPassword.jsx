@@ -4,13 +4,15 @@ import {axiosProvider} from "../http/httpService";
 import styles from "./signin.styles";
 import {MaterialIcons} from "@expo/vector-icons";
 
-const ResetPassword = ({navigation}) => {
+const ResetPassword = ({route,navigation}) => {
     const [password, setPassword] = useState('');
     const [showpassword, setShowPassword] = useState(true);
+    const {code} = route.params;
     const handelForgotPassword = async () => {
         try {
             const response = await axiosProvider.post('mailer/resetPassword', {
                 newPassword: password,
+                code:code,
             });
             navigation.navigate('Signin');
             console.log(response.data);
