@@ -8,7 +8,7 @@ const CreateCode = ({ route, navigation }) => {
     const [isResendButtonDisabled, setIsResendButtonDisabled] = useState(true);
     const [remainingTime, setRemainingTime] = useState(60);
     const isMounted = useRef(false);
-    const intervalRef = useRef(null); // Référence à l'intervalle
+    const intervalRef = useRef(null);
 
     const { parentEmail } = route.params;
 
@@ -20,14 +20,14 @@ const CreateCode = ({ route, navigation }) => {
                     return prevTime - 1;
                 } else {
                     setIsResendButtonDisabled(false);
-                    clearInterval(intervalRef.current); // Supprimer l'intervalle
+                    clearInterval(intervalRef.current);
                     return prevTime;
                 }
             });
         }, 1000);
 
         return () => {
-            clearInterval(intervalRef.current); // Supprimer l'intervalle lors du démontage
+            clearInterval(intervalRef.current);
             isMounted.current = false;
         };
     }, []);
@@ -43,7 +43,7 @@ const CreateCode = ({ route, navigation }) => {
             });
             setCode(String(response.data.code));
             if (response.data.success === true) {
-                navigation.navigate('ResetPassword');
+                navigation.navigate('ResetPassword',{code:code});
                 setCode('');
             } else {
                 Alert.alert("Code invalide ou expiré");
