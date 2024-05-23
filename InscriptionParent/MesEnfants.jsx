@@ -12,8 +12,8 @@ import ProgressStepsScreen from "./ProgressStepsScreen";
 const MesEnfants = ({ navigation }) => {
     const [count, setCount] = useState(1);
     const [showAddButton, setShowAddButton] = useState(true);
-    const [forms, setForms] = useState([{ prenom: '', motDePasse: '', classe: '' }]);
-    const [selectedImage, setSelectedImage] = useState('');
+    const [forms, setForms] = useState([{ prenom: '', motDePasse: '', classe: '',identifiant : ''}]);
+    const [selectedImage, setSelectedImage] = useState(null);
     const [nextButtonDisabled, setNextButtonDisabled] = useState(true);
     global.selectedOption =selectedOption
 
@@ -47,31 +47,33 @@ const MesEnfants = ({ navigation }) => {
                 formData.append('email', childData.identifiant);
                 formData.append('password', childData.motDePasse);
                 formData.append('id_parent', parentId);
-                formData.append('roleId', 3);
+
 
                 if (selectedImage) {
+                    const imageUri = selectedImage;
+
                     if (Platform.OS === 'ios') {
-                        const imageUriParts = selectedImage.split('.');
+                        const imageUriParts = imageUri.split('.');
                         const fileExtension = imageUriParts[imageUriParts.length - 1];
 
                         formData.append('image', {
-                            uri: selectedImage,
+                            uri: imageUri,
                             name: `image.${fileExtension}`,
                             type: `image/${fileExtension}`,
-                    });
+                        });
                     }
                     if (Platform.OS === 'android') {
-                        const newImageUri = "file:///" + selectedImage.split("file:/").join("");
+                        const newImageUri = "file:///" + imageUri.split("file:/").join("");
                         formData.append('image', {
                             uri: newImageUri,
                             type: mime.getType(newImageUri),
                             name: newImageUri.split("/").pop()
                         });
                     }
-                }
+                }else formData.append('image',null)
                 console.log('formData:', formData);
                 const response = await axios.create({
-                    baseURL: 'http://192.168.1.7:3000/',
+                    baseURL: 'http://192.168.1.10:3000/',
                     timeout: 10000,
                     headers: {
                         'Content-Type': 'multipart/form-data',
@@ -97,17 +99,31 @@ const MesEnfants = ({ navigation }) => {
         }
     };
 
-    const handleChildDataChange = (index, name, value) => {
+
+    const handleChildDataChange = async (index, name, value) => {
         const newForms = [...forms];
         newForms[index][name] = value;
+        if (name === 'prenom') {
+            const token = await AsyncStorage.getItem('jwtToken');
+            if (!token) {
+                throw new Error('JWT token is missing');
+            }
+            const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
+            const parentId = decodedToken.sub;
+            const childIdentifier = value.trim() ? `${value.trim()}${parentId}` : '';
+            newForms[index]['identifiant'] = childIdentifier;
+        }
         setForms(newForms);
         validateForms(newForms);
     };
 
+
     const handleAddForm = () => {
         if (count < selectedOption) {
-            const newForms = [...forms, { prenom: '', motDePasse: '', classe: '' }];
+            const newForms = [...forms, { prenom: '', motDePasse: '', classe: '' ,identifiant : ""}];
+            console.log("newForms",newForms)
             setForms(newForms);
+            console.log(forms)
             setCount(count + 1);
             validateForms(newForms);
         }
@@ -151,6 +167,7 @@ const MesEnfants = ({ navigation }) => {
                             formData={form}
                             onImageSelect={handleImageSelect}
                             onClasseChange={(value) => handleChildDataChange(index, 'classe', value)}
+                            handleIdentifierChange={(value) => handleChildDataChange(index, 'identifiant', value)}
                             showAddButton={showAddButton && count < selectedOption}
                             count={count}
                         />

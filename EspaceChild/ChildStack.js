@@ -1,8 +1,9 @@
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs";
 import BackPackEnfant from "./EspaceEnfantBackPack/BackPackEnfant";
-import { MaterialIcons } from '@expo/vector-icons';
+import {FontAwesome, MaterialIcons} from '@expo/vector-icons';
 import React from "react";
 import {Platform} from "react-native";
+import ChildProfile from "./profile/ChildProfile";
 
 
 const Tab = createBottomTabNavigator();
@@ -40,6 +41,11 @@ const ChildStack = () => {
                                   <MaterialIcons name="backpack" size={24} color="black" />
                               ),
                           }} />
+            <Tab.Screen name={'ChildProfile'} component={ChildProfile}
+                        options={{
+                            title: 'Compte Admin',
+                            tabBarIcon: () => <FontAwesome name="user" size={24} color="black" />,
+                        }} />
         </Tab.Navigator>
     )
 }

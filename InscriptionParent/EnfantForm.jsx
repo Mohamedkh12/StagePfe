@@ -1,3 +1,4 @@
+// EnfantForm.js
 import React, { useEffect, useState} from 'react';
 import {Text, TextInput, TouchableOpacity, View, Image, Platform, Alert, KeyboardAvoidingView} from 'react-native';
 import { Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
@@ -10,52 +11,53 @@ import JWT from "expo-jwt";
 import {Picker} from "@react-native-picker/picker";
 
 
-const EnfantForm = ({ index,formData, onChildDataChange,isDataSubmitted,onImageSelect,onClasseChange  }) => {
+const EnfantForm = ({ index,formData, onChildDataChange,isDataSubmitted,onImageSelect,onClasseChange,handleIdentifierChange  }) => {
     const [selectedImage, setSelectedImage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [parentId, setParentId] = useState('');
 
-    const getParentId = async () => {
+    useEffect(() => {
+        const getParentId = async () => {
             const token = await AsyncStorage.getItem('jwtToken');
             const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
             setParentId(decodedToken.sub);
-    };
-    useEffect(() => {
+        };
         getParentId();
     }, []);
 
+
     const openImagePicker = async () => {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission Denied', 'Sorry, we need camera roll permission to upload images.');
-                return;
-            }
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-                base64: true
-            });
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (status !== 'granted') {
+            Alert.alert('Permission Denied', 'Sorry, we need camera roll permission to upload images.');
+            return;
+        }
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 1,
+            base64: true
+        });
 
-            if (result.cancelled) {
-                console.log("Image selection cancelled");
-                return;
-            }
+        if (result.cancelled) {
+            console.log("Image selection cancelled");
+            return;
+        }
 
-            if (!result.assets[0].uri) {
-                console.log("Selected Image URI is undefined");
-                return;
-            }
-            const resizedImage = await ImageManipulator.manipulateAsync(
-                result.assets[0].uri,
-                [{ resize: { width: 80, height: 80 } }],
-                { compress: 0.3, format: ImageManipulator.SaveFormat.JPEG }
-            );
+        if (!result.assets[0].uri) {
+            console.log("Selected Image URI is undefined");
+            return;
+        }
+        const resizedImage = await ImageManipulator.manipulateAsync(
+            result.assets[0].uri,
+            [{ resize: { width: 80, height: 80 } }],
+            { compress: 0.3, format: ImageManipulator.SaveFormat.JPEG }
+        );
 
-            setSelectedImage(resizedImage.uri);
-            onImageSelect(resizedImage.uri);
-            console.log("Selected Image:", resizedImage.uri);
+        setSelectedImage(resizedImage.uri);
+        onImageSelect(resizedImage.uri);
+        console.log("Selected Image:", resizedImage.uri);
     };
 
     const getTitleText = () => {
@@ -76,104 +78,104 @@ const EnfantForm = ({ index,formData, onChildDataChange,isDataSubmitted,onImageS
     ];
     return (
 
-            <KeyboardAvoidingView >
-                <View style={styles.content}>
-                    <View>
-                        <Text style={styles.h2}>{getTitleText()}</Text>
-                    </View>
-                    <View>
-                        <Text style={styles.label}>Choisir la photo de votre enfant</Text>
-                        {selectedImage ? (
-                            <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
-                                <Image source={{ uri: selectedImage }} style={styles.uploadedImage} />
-                            </TouchableOpacity>
-                        ) : (
-                            <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
-                                <Entypo name="plus" style={styles.iconplus} />
-                                <Text style={styles.textimage}>AJOUTER UNE IMAGE</Text>
-                            </TouchableOpacity>
-                        )}
+        <KeyboardAvoidingView >
+            <View style={styles.content}>
+                <View>
+                    <Text style={styles.h2}>{getTitleText()}</Text>
+                </View>
+                <View>
+                    <Text style={styles.label}>Choisir la photo de votre enfant</Text>
+                    {selectedImage ? (
+                        <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
+                            <Image source={{ uri: selectedImage }} style={styles.uploadedImage} />
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
+                            <Entypo name="plus" style={styles.iconplus} />
+                            <Text style={styles.textimage}>AJOUTER UNE IMAGE</Text>
+                        </TouchableOpacity>
+                    )}
 
-                    </View>
+                </View>
 
-                    <View>
-                        <Text style={styles.label}>Prénom*</Text>
-                        <TextInput
-                            placeholder="Prénom"
-                            onChangeText={text => onChildDataChange(index, 'prenom', text)}
-                            value={formData.prenom}
-                            inputMode="text"
-                            autoComplete="cc-family-name"
-                            style={styles.inputcontent}
-                        />
-                    </View>
-                    <View>
-                        <Text style={styles.label}>Classe*</Text>
-                        <View style={styles.inputcontent}>
-                            <View style={styles.inputwrapper}>
-                                {Platform.OS === 'ios' ? (
-                                    <>
-                                        <RNPickerSelect
-                                            value={formData.classe}
-                                            onValueChange={(value) => onClasseChange(value)}
-                                            placeholder={{ label: 'Choisir une classe', value: null }}
-                                            items={classes}
-                                        />
-                                        <AntDesign name="down" size={24} color="black" />
-                                    </>
-                                ) : (
-                                    <Picker
-                                        selectedValue={formData.classe}
-                                        style={{ height: 50, width: '100%' }}
+                <View>
+                    <Text style={styles.label}>Prénom*</Text>
+                    <TextInput
+                        placeholder="Prénom"
+                        onChangeText={text => onChildDataChange(index, 'prenom', text)}
+                        value={formData.prenom}
+                        inputMode="text"
+                        autoComplete="cc-family-name"
+                        style={styles.inputcontent}
+                    />
+                </View>
+                <View>
+                    <Text style={styles.label}>Classe*</Text>
+                    <View style={styles.inputcontent}>
+                        <View style={styles.inputwrapper}>
+                            {Platform.OS === 'ios' ? (
+                                <>
+                                    <RNPickerSelect
+                                        value={formData.classe}
                                         onValueChange={(value) => onClasseChange(value)}
-                                    >
-                                        <Picker.Item label="Choisir une classe" value={null} />
-                                        {classes.map((item, index) => (
-                                            <Picker.Item key={index} label={item.label} value={item.value} />
-                                        ))}
-                                    </Picker>
-                                )}
-                            </View>
+                                        placeholder={{ label: 'Choisir une classe', value: null }}
+                                        items={classes}
+                                    />
+                                    <AntDesign name="down" size={24} color="black" />
+                                </>
+                            ) : (
+                                <Picker
+                                    selectedValue={formData.classe}
+                                    style={{ height: 50, width: '100%' }}
+                                    onValueChange={(value) => onClasseChange(value)}
+                                >
+                                    <Picker.Item label="Choisir une classe" value={null} />
+                                    {classes.map((item, index) => (
+                                        <Picker.Item key={index} label={item.label} value={item.value} />
+                                    ))}
+                                </Picker>
+                            )}
                         </View>
-                    </View>
-
-                    <Text style={styles.h2}>Connexion</Text>
-
-                    <View>
-                        <Text style={styles.label}>Identifiant*</Text>
-                        <TextInput
-                            style={styles.inputcontent}
-                            placeholder="Identifiant"
-                            value={formData.prenom.trim() ? `${formData.prenom.toLowerCase()}${parentId}` : ''}
-                            onChangeText={text => onChildDataChange(index, 'identifiant', text)}
-                            editable={false}
-                        />
-                    </View>
-
-                    <View>
-                        <Text style={styles.label}>Mot de passe*</Text>
-                        <View style={styles.passwordInputWrapper}>
-                            <TextInput
-                                placeholder="Password"
-                                onChangeText={text => onChildDataChange(index, 'motDePasse', text)}
-                                value={formData.password}
-                                secureTextEntry={showPassword}
-                                inputMode="text"
-                                autoCompleteType="password"
-                                minLength={8}
-                                style={styles.passwordInput}
-                            />
-                            <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
-                                <MaterialIcons
-                                    name={showPassword ? 'visibility' : 'visibility-off'}
-                                    style={styles.passwordIcon}
-                                />
-                            </TouchableOpacity>
-                        </View>
-
                     </View>
                 </View>
-            </KeyboardAvoidingView>
+
+                <Text style={styles.h2}>Connexion</Text>
+
+                <View>
+                    <Text style={styles.label}>Identifiant*</Text>
+                    <TextInput
+                        style={styles.inputcontent}
+                        placeholder="Identifiant"
+                        value={formData.prenom.trim() ? `${formData.prenom.toLowerCase()}${parentId}` : ''}
+                        onChangeText={(value) => handleIdentifierChange(value)}
+                        editable={false}
+                    />
+                </View>
+
+                <View>
+                    <Text style={styles.label}>Mot de passe*</Text>
+                    <View style={styles.passwordInputWrapper}>
+                        <TextInput
+                            placeholder="Password"
+                            onChangeText={text => onChildDataChange(index, 'motDePasse', text)}
+                            value={formData.motDePasse}
+                            secureTextEntry={showPassword}
+                            inputMode="text"
+                            autoCompleteType="password"
+                            minLength={8}
+                            style={styles.passwordInput}
+                        />
+                        <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                            <MaterialIcons
+                                name={showPassword ? 'visibility' : 'visibility-off'}
+                                style={styles.passwordIcon}
+                            />
+                        </TouchableOpacity>
+                    </View>
+
+                </View>
+            </View>
+        </KeyboardAvoidingView>
     );
 };
 

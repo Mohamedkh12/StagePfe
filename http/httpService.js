@@ -1,7 +1,7 @@
 
 import axios from "./axios";
 
-const serverURL="http://192.168.1.7:3000/";
+const serverURL="http://192.168.1.10:3000/";
 async function axiosRequestGet(service, params) {
     try {
         const baseURL = serverURL + service;

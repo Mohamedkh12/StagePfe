@@ -64,7 +64,6 @@ const CompteParent = ({ route, navigation }) => {
                 email: data.email,
                 tel: data.phone,
                 password: data.password,
-                roleId: roleId,
             });
 
             console.log("Response data:", response.data);
