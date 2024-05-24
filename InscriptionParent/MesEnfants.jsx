@@ -163,7 +163,6 @@ const MesEnfants = ({ navigation }) => {
                     </Text>
                     {forms.map((form, index) => (
                         <EnfantForm
-                            <EnfantForm
                             key={index + 1}
                             index={index}
                             onChildDataChange={handleChildDataChange}
@@ -173,7 +172,6 @@ const MesEnfants = ({ navigation }) => {
                             handleIdentifierChange={(value) => handleChildDataChange(index, 'identifiant', value)}
                             showAddButton={showAddButton && count < selectedOption}
                             count={count}
-                        />
                         />
                     ))}
                     <View>
