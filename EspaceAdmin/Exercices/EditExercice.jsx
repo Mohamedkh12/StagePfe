@@ -13,7 +13,17 @@ const EditExercice = ({ route, navigation }) => {
     const [category, setCategory] = useState("");
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-    const [assignment, setAssignment] = useState("");
+    const [week, setWeek] = useState("");
+    const [domaine, setDomaine] = useState("");
+    const [degree, setDegree] = useState("");
+    const [subCategory, setSubCategory] = useState("");
+    const [subSubCategory, setSubSubCategory] = useState("");
+    const [subSubSubCategory, setSubSubSubCategory] = useState("");
+    const [objective, setObjective] = useState("");
+    const [code, setCode] = useState("");
+    const [trail, setTrail] = useState("");
+    const [active, setActive] = useState("");
+
     const openImagePicker = async () => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -67,7 +77,17 @@ const EditExercice = ({ route, navigation }) => {
             formData.append('category', category);
             formData.append('name', name);
             formData.append('description', description);
-            formData.append('assignment', assignment);
+            formData.append('week', week);
+            formData.append('domaine', domaine);
+            formData.append('degree', degree);
+            formData.append('sub_category', subCategory);
+            formData.append('sub_sub_category', subSubCategory);
+            formData.append('sub_sub_sub_category', subSubSubCategory);
+            formData.append('link', link);
+            formData.append('objective', objective);
+            formData.append('code', code);
+            formData.append('trail', trail);
+            formData.append('active', active);
             if (selectedImage) {
                 const imageUriParts = selectedImage.split('.');
                 const fileExtension = imageUriParts[imageUriParts.length - 1];

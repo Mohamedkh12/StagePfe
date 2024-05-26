@@ -36,6 +36,7 @@
     "expo-jwt": "^1.7.1",
     "expo-splash-screen": "^0.27.4",
     "expo-status-bar": "^1.12.1",
+    "expo-symbols": "~0.1.4",
     "expo-updates": "^0.25.14",
     "form-data": "^4.0.0",
     "form-data-json-convert": "^2.2.1",
@@ -74,10 +75,10 @@
     "react-native-svg-transformer": "^1.4.0",
     "react-native-vector-icons": "^10.0.3",
     "react-native-web": "^0.19.10",
+    "toggle-switch-react-native": "^3.3.0",
+    "typescript": "~5.3.3",
     "url-encode-decode": "^1.0.0",
-    "yup": "^1.4.0",
-    "expo-symbols": "~0.1.4",
-    "typescript": "~5.3.3"
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",

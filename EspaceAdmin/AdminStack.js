@@ -10,6 +10,7 @@ import {createStackNavigator} from "@react-navigation/stack";
 import AddExercices from "./Exercices/AddExercices";
 import EditExercice from "./Exercices/EditExercice";
 import React from "react";
+import ShowExercice from './Exercices/ShowExercice';
 
 
 const screenOptions = {
@@ -64,6 +65,13 @@ const AdminStack = () => {
                       style={{ width: 24, height: 24, resizeMode: 'contain' }}
                   />
               }}}/>
+        <Tab.Screen name={'ShowExercice'} component={ShowExercice} options={{title:'ShowExercice',
+          tabBarIcon:()=>{
+            return <Image
+             // source={require('../assets/images/multiple-users-silhouette.png')}
+              style={{ width: 24, height: 24, resizeMode: 'contain' }}
+            />
+          }}}/>
           <Tab.Screen
               name="AdminProfile"
               component={AdminProfile}
