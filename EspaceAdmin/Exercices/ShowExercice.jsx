@@ -24,6 +24,7 @@ const ShowExercice = () => {
 
     console.log('Preparing to toggle exercise status:', { exerciseId, newStatus });
 
+
     try {
       const response = await axiosProvider.patch('admin/changeExerciseStatus', {
         exerciseId: exerciseId,
