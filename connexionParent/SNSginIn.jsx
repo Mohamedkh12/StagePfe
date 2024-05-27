@@ -24,10 +24,10 @@ import CreateCode from "./CreateCode";
 import BackPack from "../BackPack/BackPack";
 import ParentExercices from "../EspaceParentExercices/ParentExercices";
 import ListExercices from "../EspaceParentExercices/ListExercice";
+import WebViewScreen from "../EspaceAdmin/Exercices/WebViewScreen";
 const Stack = createStackNavigator();
 
 const SNSginIn = () => {
-    const [bloquerRetour, setBloquerRetour] = useState(false);
     return(
           <NavigationContainer independent={true} initialRouteName={'Signin'} screenOptions={{ headerShown: false }}>
               <Stack.Navigator>
@@ -35,8 +35,8 @@ const SNSginIn = () => {
                   <Stack.Screen name={"ChildStack"} component={ChildStack} options={{ headerShown: false ,gestureEnabled: false,}} />
                   <Stack.Screen name={'BackPackEnfant'} component={BackPackEnfant} options={{headerShown: false,gestureEnabled: false,}}/>
                   <Stack.Screen name="AdminStack" component={AdminStack} options={{ headerShown: false,gestureEnabled: false, }}/>
-                  <Stack.Screen name={'CategoryExercices'} component={CategoryExercices} screenOptions={{ headerShown: false,gestureEnabled: false, }}/>
                   <Stack.Screen name={'AdminExercices'} component={AdminExercices} options={{ headerShown: false,gestureEnabled: false, }}/>
+                  <Stack.Screen name="WebViewScreen" component={WebViewScreen} options={{headerShown: false, gestureEnabled: false,}}/>
                   <Stack.Screen name={'AddExercices'} component={AddExercices} options={{ headerShown: false, gestureEnabled: false, }}/>
                   <Stack.Screen name={'EditExercice'} component={EditExercice} options={{ headerShown: false }}/>
                   <Stack.Screen name="MdpOublie" component={MdpOublie}  options={{ headerShown: false , gestureEnabled: false,}}/>

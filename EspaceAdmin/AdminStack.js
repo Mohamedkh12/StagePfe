@@ -10,7 +10,12 @@ import {createStackNavigator} from "@react-navigation/stack";
 import AddExercices from "./Exercices/AddExercices";
 import EditExercice from "./Exercices/EditExercice";
 import React from "react";
-import ShowExercice from './Exercices/ShowExercice';
+import ShowExercice from "./Exercices/ShowExercice";
+
+import SubCategory from "./Exercices/SubCategory";
+import ClassScreen from "./Exercices/ClassScreen";
+import CategoryScreen from "./Exercices/CategoryScreen";
+import WebViewScreen from "./Exercices/WebViewScreen";
 
 
 const screenOptions = {
@@ -42,7 +47,9 @@ const Stack = createStackNavigator();
 const ExercicesStack = () => {
     return (
         <Stack.Navigator>
-            <Stack.Screen name="CategoryExercices" component={CategoryExercices} options={{headerShown: false, gestureEnabled: false,}}/>
+            <Stack.Screen name="ClassScreens" component={ClassScreen} options={{headerShown: false, gestureEnabled: false,}}/>
+            <Stack.Screen name="CategoryScreen" component={CategoryScreen} options={{headerShown: false, gestureEnabled: false,}}/>
+            <Stack.Screen name="SubCategory" component={SubCategory} options={{headerShown: false, gestureEnabled: false,}}/>
             <Stack.Screen name="AdminExercices" component={AdminExercices} options={{headerShown: false, gestureEnabled: false,}}/>
         </Stack.Navigator>
     )
@@ -58,6 +65,13 @@ const AdminStack = () => {
                   />
               )}}
          />
+          <Tab.Screen name={'ShowExercice'} component={ShowExercice} options={{title:'ShowExercice',
+              tabBarIcon:()=>{
+                  return <Image
+                      // source={require('../assets/images/multiple-users-silhouette.png')}
+                      style={{ width: 24, height: 24, resizeMode: 'contain' }}
+                  />
+              }}}/>
           <Tab.Screen name={'Profile'} component={ListChildParent} options={{title:'Users',
               tabBarIcon:()=>{
                   return <Image
@@ -65,13 +79,6 @@ const AdminStack = () => {
                       style={{ width: 24, height: 24, resizeMode: 'contain' }}
                   />
               }}}/>
-        <Tab.Screen name={'ShowExercice'} component={ShowExercice} options={{title:'ShowExercice',
-          tabBarIcon:()=>{
-            return <Image
-             // source={require('../assets/images/multiple-users-silhouette.png')}
-              style={{ width: 24, height: 24, resizeMode: 'contain' }}
-            />
-          }}}/>
           <Tab.Screen
               name="AdminProfile"
               component={AdminProfile}

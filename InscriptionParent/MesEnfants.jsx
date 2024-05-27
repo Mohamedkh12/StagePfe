@@ -12,7 +12,7 @@ import ProgressStepsScreen from "./ProgressStepsScreen";
 const MesEnfants = ({ navigation }) => {
     const [count, setCount] = useState(1);
     const [showAddButton, setShowAddButton] = useState(true);
-    const [forms, setForms] = useState([{ prenom: '', motDePasse: '', classe: '', identifiant: '' }]);
+    const [forms, setForms] = useState([{ prenom: '', motDePasse: '', classe: '',identifiant : ''}]);
     const [selectedImage, setSelectedImage] = useState(null);
     const [nextButtonDisabled, setNextButtonDisabled] = useState(true);
     global.selectedOption =selectedOption
@@ -50,34 +50,32 @@ const MesEnfants = ({ navigation }) => {
                 formData.append('password', childData.motDePasse);
                 formData.append('id_parent', parentId);
 
-                if (childData.image) {
-                    const imageUri = childData.image;
 
-                    if (Platform.OS === 'ios') {
-                        const imageUriParts = imageUri.split('.');
+                if(selectedImage) {
+                    if(Platform.OS==='ios'){
+                        const imageUriParts = selectedImage.split('.');
                         const fileExtension = imageUriParts[imageUriParts.length - 1];
 
                         formData.append('image', {
-                            uri: imageUri,
+                            uri: selectedImage,
                             name: `image.${fileExtension}`,
                             type: `image/${fileExtension}`,
                         });
-                    }
-                    if (Platform.OS === 'android') {
-                        const newImageUri = "file:///" + imageUri.split("file:/").join("");
-                        formData.append('image', {
-                            uri: newImageUri,
-                            type: mime.getType(newImageUri),
-                            name: newImageUri.split("/").pop()
-                        });
-                    }
-                } else {
-                    formData.append('image', null);
-                }
+                    }if (Platform.OS === 'android') {
+                        if(selectedImage) {
+                            const newImageUri = "file:///" + selectedImage.split("file:/").join("");
 
+                            formData.append('image', {
+                                uri: newImageUri,
+                                type: mime.getType(newImageUri),
+                                name: newImageUri.split("/").pop()
+                            });
+                        }
+                    }
+                }
                 console.log('formData:', formData);
                 const response = await axios.create({
-                    baseURL: 'http://192.168.1.121:3000/',
+                    baseURL: 'http://192.168.1.10:3000/',
                     timeout: 10000,
                     headers: {
                         'Content-Type': 'multipart/form-data',

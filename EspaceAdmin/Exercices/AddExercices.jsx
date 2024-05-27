@@ -1,28 +1,36 @@
-import {Controller, useForm} from "react-hook-form";
-import React, {useState} from "react";
+import { Controller, useForm } from "react-hook-form";
+import React, { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import {Alert, Image, KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View} from "react-native";
+import { Alert, Image, KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import * as ImageManipulator from "expo-image-manipulator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {axiosProvider} from "../../http/httpService";
+import { axiosProvider } from "../../http/httpService";
 import styles from "../../EspaceparentEnfants/AddChildStyle";
-import {AntDesign, Entypo} from "@expo/vector-icons";
-import JWT from 'expo-jwt';
-import categoryExercice from "./CategoryExercice";
-const AddExercices = ({navigation}) => {
-    const { control, handleSubmit,
-        formState: { errors }, reset } = useForm(
-        {
-            defaultValues: {
-                category: '',
-                name: '',
-                image: null,
-                description: '',
-                assignment: '',
-            },
-        }
-    );
+import { AntDesign, Entypo } from "@expo/vector-icons";
+
+const AddExercices = ({ navigation }) => {
+    const { control, handleSubmit, formState: { errors }, reset } = useForm({
+        defaultValues: {
+            category: '',
+            name: '',
+            week: '',
+            domaine: '',
+            degree: '',
+            sub_category: '',
+            sub_sub_category: '',
+            sub_sub_sub_category: '',
+            link: '',
+            objective: '',
+            code: '',
+            trail: '',
+            active: '',
+            image: null,
+            description: '',
+            assignment: '',
+        },
+    });
     const [selectedImage, setSelectedImage] = useState(null);
+
     const openImagePicker = async () => {
         try {
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -43,12 +51,12 @@ const AddExercices = ({navigation}) => {
                 return;
             }
 
-            if (!result.assets[0].uri) {
+            if (!result.uri) {
                 console.log("Selected Image URI is undefined");
                 return;
             }
             const resizedImage = await ImageManipulator.manipulateAsync(
-                result.assets[0].uri,
+                result.uri,
                 [{ resize: { width: 80, height: 80 } }],
                 { compress: 0.6, format: ImageManipulator.SaveFormat.JPEG }
             );
@@ -60,14 +68,14 @@ const AddExercices = ({navigation}) => {
             Alert.alert('Error', "Une erreur s'est produite lors du choix de l'image.");
         }
     };
+
     const onSubmit = async (data) => {
         try {
             const token = await AsyncStorage.getItem('TokenAdmin');
             const formData = new FormData();
-            formData.append('category', data.category);
-            formData.append('name', data.name);
-            formData.append('description', data.description);
-            formData.append('assignment', data.assignment);
+            Object.keys(data).forEach(key => {
+                formData.append(key, data[key]);
+            });
 
             if (selectedImage) {
                 const imageUriParts = selectedImage.split('.');
@@ -80,11 +88,13 @@ const AddExercices = ({navigation}) => {
                 });
             }
 
-            console.log('token',token)
+            console.log('token', token);
 
-            const response = await axiosProvider.post('exercises/createExercise', formData,{
-                'Content-Type': 'multipart/form-data',
-                'Authorization': `Bearer ${token}`
+            const response = await axiosProvider.post('exercises/createExercise', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': `Bearer ${token}`
+                }
             });
 
             console.log(response.data);
@@ -105,15 +115,15 @@ const AddExercices = ({navigation}) => {
             Alert.alert('Erreur', 'Une erreur s\'est produite lors de la création d\'un exercice.');
         }
     };
-    return(
-        <KeyboardAvoidingView behavior="padding"  style={styles.container}>
-            <ScrollView >
+
+    return (
+        <KeyboardAvoidingView behavior="padding" style={styles.container}>
+            <ScrollView>
                 <View>
                     <View style={{ flexDirection: 'row' }}>
                         <TouchableOpacity onPress={() => navigation.goBack()} >
                             <AntDesign name="left" selectable={true} style={styles.iconLeft} />
                         </TouchableOpacity>
-
                         <Text style={styles.title}>Ajouter un Exercice</Text>
                     </View>
 
@@ -122,7 +132,6 @@ const AddExercices = ({navigation}) => {
                         <View>
                             <Text style={styles.label}>Choisir la photo de l'exercice</Text>
                             {selectedImage ? (
-
                                 <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
                                     <Image source={{ uri: selectedImage }} style={styles.uploadedImage} />
                                 </TouchableOpacity>
@@ -134,6 +143,93 @@ const AddExercices = ({navigation}) => {
                             )}
                         </View>
 
+                        {/* name */}
+                        <Controller
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Text style={styles.label}>name*</Text>
+                                    <View style={styles.inputwrapper}>
+                                        <TextInput
+                                            placeholder="name"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
+                                            style={styles.inputcontent}
+                                        />
+                                    </View>
+                                    {errors.name && <Text style={{ color: 'red' }}>{errors.name.message}</Text>}
+                                </>
+                            )}
+                            name="name"
+                            rules={{ required: 'Ce champ est requis' }}
+                        />
+
+                        {/* week */}
+                        <Controller
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Text style={styles.label}>week*</Text>
+                                    <View style={styles.inputwrapper}>
+                                        <TextInput
+                                            placeholder="week"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
+                                            style={styles.inputcontent}
+                                        />
+                                    </View>
+                                    {errors.week && <Text style={{ color: 'red' }}>{errors.week.message}</Text>}
+                                </>
+                            )}
+                            name="week"
+                            rules={{ required: 'Ce champ est requis' }}
+                        />
+
+                        {/* domaine */}
+                        <Controller
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Text style={styles.label}>domaine*</Text>
+                                    <View style={styles.inputwrapper}>
+                                        <TextInput
+                                            placeholder="domaine"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
+                                            style={styles.inputcontent}
+                                        />
+                                    </View>
+                                    {errors.domaine && <Text style={{ color: 'red' }}>{errors.domaine.message}</Text>}
+                                </>
+                            )}
+                            name="domaine"
+                            rules={{ required: 'Ce champ est requis' }}
+                        />
+
+                        {/* degree */}
+                        <Controller
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Text style={styles.label}>degree*</Text>
+                                    <View style={styles.inputwrapper}>
+                                        <TextInput
+                                            placeholder="degree"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
+                                            style={styles.inputcontent}
+                                        />
+                                    </View>
+                                    {errors.degree && <Text style={{ color: 'red' }}>{errors.degree.message}</Text>}
+                                </>
+                            )}
+                            name="degree"
+                            rules={{ required: 'Ce champ est requis' }}
+                        />
                         {/* category */}
                         <Controller
                             control={control}
@@ -156,79 +252,184 @@ const AddExercices = ({navigation}) => {
                             name="category"
                         />
 
-                        {/* name */}
-                        <View>
-                            <Controller
-                                control={control}
-                                render={({ field }) => (
-                                    <>
-                                        <View>
-                                            <Text  style={styles.label}>name*</Text>
-                                            <View style={styles.inputwrapper}>
-                                                <TextInput
-                                                    placeholder="name"
-                                                    onBlur={field?.onBlur}
-                                                    onChangeText={(value) => field?.onChange(value)}
-                                                    value={field?.value}
-                                                    style={styles.inputcontent}
-                                                />
-                                            </View>
-                                            {errors.name && <Text style={{ color: 'red' }}>{errors.name.message}</Text>}
-                                        </View>
-                                    </>
-                                )}
-                                name="name"
-                                rules={{ required: 'Ce champ est requis' }}
-                            />
-                            {errors.classe && <Text style={{ color: 'red' }}>{errors.name.message}</Text>}
-                        </View>
-
-                        {/* description */}
+                        {/* sub_category */}
                         <Controller
                             control={control}
-                            rules={{ required: 'Ce champ est requis' }}
                             render={({ field }) => (
                                 <>
-                                    <Text style={styles.label}>description*</Text>
+                                    <Text style={styles.label}>sub_category*</Text>
                                     <View style={styles.inputwrapper}>
                                         <TextInput
+                                            placeholder="sub_category"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
                                             style={styles.inputcontent}
-                                            placeholder="description"
-                                            onBlur={field.onBlur}
-                                            onChangeText={(value) => field.onChange(value)}
-                                            value={field.value}
                                         />
                                     </View>
+                                    {errors.sub_category && <Text style={{ color: 'red' }}>{errors.sub_category.message}</Text>}
                                 </>
                             )}
-                            name="description"
+                            name="sub_category"
+                            rules={{ required: 'Ce champ est requis' }}
                         />
-                        {errors.description && <Text style={{ color: 'red' }}>{errors.description.message}</Text>}
 
-                        {/* assignment */}
+                        {/* sub_sub_category */}
                         <Controller
                             control={control}
-                            rules={{ required: 'Ce champ est requis' }}
                             render={({ field }) => (
                                 <>
-                                    <Text style={styles.label}>assignment*</Text>
+                                    <Text style={styles.label}>sub_sub_category*</Text>
                                     <View style={styles.inputwrapper}>
                                         <TextInput
+                                            placeholder="sub_sub_category"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
                                             style={styles.inputcontent}
-                                            placeholder="assignment"
-                                            onBlur={field.onBlur}
-                                            onChangeText={(value) => field.onChange(value)}
-                                            value={field.value}
                                         />
                                     </View>
+                                    {errors.sub_sub_category && <Text style={{ color: 'red' }}>{errors.sub_sub_category.message}</Text>}
                                 </>
                             )}
-                            name="assignment"
+                            name="sub_sub_category"
+                            rules={{ required: 'Ce champ est requis' }}
                         />
-                        {errors.assignment && <Text style={{ color: 'red' }}>{errors.assignment.message}</Text>}
+
+                        {/* sub_sub_sub_category */}
+                        <Controller
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Text style={styles.label}>sub_sub_sub_category*</Text>
+                                    <View style={styles.inputwrapper}>
+                                        <TextInput
+                                            placeholder="sub_sub_sub_category"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
+                                            style={styles.inputcontent}
+                                        />
+                                    </View>
+                                    {errors.sub_sub_sub_category && <Text style={{ color: 'red' }}>{errors.sub_sub_sub_category.message}</Text>}
+                                </>
+                            )}
+                            name="sub_sub_sub_category"
+                            rules={{ required: 'Ce champ est requis' }}
+                        />
+
+                        {/* link */}
+                        <Controller
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Text style={styles.label}>link*</Text>
+                                    <View style={styles.inputwrapper}>
+                                        <TextInput
+                                            placeholder="link"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
+                                            style={styles.inputcontent}
+                                        />
+                                    </View>
+                                    {errors.link && <Text style={{ color: 'red' }}>{errors.link.message}</Text>}
+                                </>
+                            )}
+                            name="link"
+                            rules={{ required: 'Ce champ est requis' }}
+                        />
+
+                        {/* objective */}
+                        <Controller
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Text style={styles.label}>objective*</Text>
+                                    <View style={styles.inputwrapper}>
+                                        <TextInput
+                                            placeholder="objective"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
+                                            style={styles.inputcontent}
+                                        />
+                                    </View>
+                                    {errors.objective && <Text style={{ color: 'red' }}>{errors.objective.message}</Text>}
+                                </>
+                            )}
+                            name="objective"
+                            rules={{ required: 'Ce champ est requis' }}
+                        />
+
+                        {/* code */}
+                        <Controller
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Text style={styles.label}>code*</Text>
+                                    <View style={styles.inputwrapper}>
+                                        <TextInput
+                                            placeholder="code"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
+                                            style={styles.inputcontent}
+                                        />
+                                    </View>
+                                    {errors.code && <Text style={{ color: 'red' }}>{errors.code.message}</Text>}
+                                </>
+                            )}
+                            name="code"
+                            rules={{ required: 'Ce champ est requis' }}
+                        />
+
+                        {/* trail */}
+                        <Controller
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Text style={styles.label}>trail*</Text>
+                                    <View style={styles.inputwrapper}>
+                                        <TextInput
+                                            placeholder="trail"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
+                                            style={styles.inputcontent}
+                                        />
+                                    </View>
+                                    {errors.trail && <Text style={{ color: 'red' }}>{errors.trail.message}</Text>}
+                                </>
+                            )}
+                            name="trail"
+                            rules={{ required: 'Ce champ est requis' }}
+                        />
+
+                        {/* active */}
+                        {/*<Controller
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                    <Text style={styles.label}>active*</Text>
+                                    <View style={styles.inputwrapper}>
+                                        <TextInput
+                                            placeholder="active"
+                                            onBlur={field?.onBlur}
+                                            onChangeText={(value) => field?.onChange(value)}
+                                            value={field?.value}
+                                            style={styles.inputcontent}
+                                        />
+                                    </View>
+                                    {errors.active && <Text style={{ color: 'red' }}>{errors.active.message}</Text>}
+                                </>
+                            )}
+                            name="active"
+                            rules={{ required: 'Ce champ est requis' }}
+                        />*/}
                     </View>
                 </View>
-                <TouchableOpacity style={styles.buttom}  onPress={handleSubmit(onSubmit)} >
+                <TouchableOpacity style={styles.buttom} onPress={handleSubmit(onSubmit)} >
                     <Text style={styles.textbuttom}>ENREGISTRER</Text>
                 </TouchableOpacity>
             </ScrollView>
@@ -236,4 +437,4 @@ const AddExercices = ({navigation}) => {
     )
 }
 
-export default AddExercices
+export default AddExercices;

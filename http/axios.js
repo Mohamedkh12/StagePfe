@@ -21,7 +21,7 @@ axios.interceptors.response.use(
 );
 
 const instance = axios.create({
-    baseURL,timeout: 120000
+    baseURL
 });
 
 

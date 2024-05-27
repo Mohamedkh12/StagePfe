@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { SafeAreaView, TouchableOpacity, View, Text, StyleSheet, Image, FlatList } from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {SafeAreaView, TouchableOpacity, View, Text, StyleSheet, Image, FlatList, RefreshControl} from 'react-native';
 import { axiosProvider } from '../../http/httpService';
 import * as FileSystem from "expo-file-system";
 
@@ -7,7 +7,7 @@ const ListChildParent = () => {
     const [parents, setParents] = useState([]);
     const [children, setChildren] = useState([]);
     const [showParents, setShowParents] = useState(true);
-
+    const [refreshing, setRefreshing] = useState(false);
     const saveImageToLocal = async (base64Image, fileName) => {
         const path = `${FileSystem.documentDirectory}${fileName}`;
         await FileSystem.writeAsStringAsync(path, base64Image, { encoding: FileSystem.EncodingType.Base64 });
@@ -15,27 +15,32 @@ const ListChildParent = () => {
     };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const parentResponse = await axiosProvider.get('admin/AllParents');
-                const childResponse = await axiosProvider.get('admin/AllChildren');
-                const childrenWithLocalImages = await Promise.all(childResponse.data.map(async (child) => {
-                    if (child.image) {
-                        const localImageUri = await saveImageToLocal(child.image, `child_${child.id}_${Date.now()}.jpg`);
-                        return { ...child, image: localImageUri };
-                    }
-                    return child;
-                }));
-                setParents(parentResponse.data);
-                setChildren(childrenWithLocalImages);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
         fetchData();
     }, []);
-
+    const fetchData = async () => {
+        try {
+            const parentResponse = await axiosProvider.get('admin/AllParents');
+            const childResponse = await axiosProvider.get('admin/AllChildren');
+            const childrenWithLocalImages = await Promise.all(childResponse.data.map(async (child) => {
+                if (child.image) {
+                    const localImageUri = await saveImageToLocal(child.image, `child_${child.id}_${Date.now()}.jpg`);
+                    return { ...child, image: localImageUri };
+                }
+                return child;
+            }));
+            setParents(parentResponse.data);
+            setChildren(childrenWithLocalImages);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+    const onRefresh = useCallback(() => {
+        setRefreshing(true);
+        fetchData();
+        setTimeout(() => {
+            setRefreshing(false);
+        }, 1000);
+    }, []);
     const renderItem = ({ item }) => {
         if (showParents) {
             return (
@@ -82,6 +87,15 @@ const ListChildParent = () => {
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id.toString()}
                 style={styles.listContainer}
+                refreshControl={
+                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                }
+                ListEmptyComponent={() => (
+                    <View >
+                        <Image source={require('../../assets/images/folder-type.png')}  />
+                        <Text >Aucun utilisateur.</Text>
+                    </View>
+                )}
             />
         </SafeAreaView>
     );
