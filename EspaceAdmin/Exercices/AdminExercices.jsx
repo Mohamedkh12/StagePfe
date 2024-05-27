@@ -131,7 +131,6 @@ const AdminExercices = ({route,navigation}) => {
 
                         <View style={{ flexDirection: 'column' }}>
                             <Text style={styles.text}>{item.name}</Text>
-                            <Text style={styles.text}>{item.description}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginTop: 20 }}>
                             {/* Icône pour afficher les options */}

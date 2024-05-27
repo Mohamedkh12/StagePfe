@@ -19,7 +19,7 @@ const WebViewScreen = ({ route, navigation }) => {
         <View style={styles.container}>
             <WebView source={{ uri: url }} style={styles.webview} />
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-                <Text style={styles.backButtonText}>Retour</Text>
+                <Ionicons name="exit-outline" size={24} color="black" />
             </TouchableOpacity>
         </View>
     );
