@@ -8,7 +8,8 @@ import {
     TouchableOpacity,
     View,
     StyleSheet,
-    Platform, ActivityIndicator
+    Platform,
+    ActivityIndicator, Switch
 } from "react-native";
 import React, {useCallback, useEffect, useState} from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -25,6 +26,7 @@ const AdminExercices = ({route,navigation}) => {
     const [showOptions, setShowOptions] = useState(null);
     const [exercises, setExercises] = useState([]);
     const [countExercice,setCountExercice]=useState(0);
+    const [isActive, setIsActive] = useState(false);
 
     const fetchExercisesByCategory = async () => {
         try {
@@ -72,42 +74,18 @@ const AdminExercices = ({route,navigation}) => {
             fetchCountExercice();
         }
     }, [exercises]);
-
-    const handleDeleteExercices = async (exercicesId, exercicesName) => {
-        try {
-            const token = await AsyncStorage.getItem('TokenAdmin');
-            if (!token) {
-                throw new Error('JWT token not found');
-            }
-            Alert.alert(
-                `Supprimer le compte de ${exercicesName}`,
-                "Etes-vous sûr de supprimer l'exercice ? Cette opération sera définitive.",
-                [
-                    {
-                        text: "Annuler",
-                        onPress: () => console.log("Suppression annulée"),
-                        style: "cancel"
-                    },
-                    {
-                        text: "Supprimer",
-                        onPress: async () => {
-                            const response = await axiosProvider.delete(`exercises/deleteExercise/${exercicesId}`, token);
-                            console.log(response);
-                            // Mettre à jour la liste après la suppression
-                            setExercises(prevData => prevData.filter(exercices => exercices.id !== exercicesId));
-                        }
-                    }
-                ]
-            );
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
+    
     const handleOptionsToggle = (exerciseId) => {
         setShowOptions(showOptions === exerciseId ? null : exerciseId);
     };
-
+    const handleSwitchChange = (exerciseId) => {
+        // Mettre à jour l'état de l'exercice avec l'ID correspondant
+        setExercises(prevExercises =>
+            prevExercises.map(exercise =>
+                exercise.id === exerciseId ? { ...exercise, open: !exercise.open } : exercise
+            )
+        );
+    };
     const renderExerciceItem = ({ item }) => {
         const ImageUrl = item.link.replace('index.html', 'preview.png');
         const token = "?Token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzIiwianRpIjoiYTZmYjc1MjYxYzQ5NGEwNzFjMjJlM2Y1YTRhOTg4ODJhNjRjZWQwMThkZGI2OGU3NTgwZWNjMTRkMWRmNDJhMWI2ZjFlZTlkYWQ4ZjdkMjAiLCJpYXQiOjE3MTY4MjY2MTYuMDIwNDY0LCJuYmYiOjE3MTY4MjY2MTYuMDIwNDY3LCJleHAiOjE3NDgzNjI2MTYuMDE1MjE2LCJzdWIiOiI2OTAiLCJzY29wZXMiOltdfQ.DdPe3ZdUD5FKCsYtnkOYR8FuEhRvP699t4Z5vbESe-agNp6pljIbWVRirITOvnRfjBkRgFRQ67vtVGakzTFql7-T4eRZ6J0K0ZeoV-RJEK4H33PplzJniC2eYOS3FEJzsr3iZMjeus3NjS2sWeFGPyJyj1e4TtBClHQtMYq6PAlNts6gGV-gcqo0iet0_HSVdzUrLzLYjR42rj1_tIZmAtqNYBeYt3RbKCj3ovCPurwjGVXoNKbZ3CTZQ2quMXLSPwMMLpr807qOn9sqYzUcZrWtQ9Pke5tFyVPbRHJZeWRFIl6AXl3OGnDl4c8zPH3IpVTfP1KqOE1HCA3iY4V5Fv2JKORNVtIwfoYoWRBGQpGPaiEueT_IBkVVqwwr0K0CB-scc1hQG3iF6ZO0q_uqDSfAp899Ho3GEglL8Ns_EBRppi26XYzSEyULzFpXn5rANlKxh2iDcUXQRZduwFQHZ2KfFKDkcKbBBT2E7biw_do2LkFIIpSUzNF9UXp9_Q8tAQzQW7Efl9iNfavzZHMcIf66cDCePax3Xj5I1gO9nI2PrwRi_o084L4u6r_bFHB63VwpSPEfmkh5S3cnOFhaBSR4OaHalhQOovgBnEPbLecoym7Wfz161DZHd6J6_1-7XcHlKzzjG7xn61zIJRAucO-p7gnXud7S5SCUeVyWFCk";
@@ -133,22 +111,21 @@ const AdminExercices = ({route,navigation}) => {
                             <Text style={styles.text}>{item.name}</Text>
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginTop: 20 }}>
-                            {/* Icône pour afficher les options */}
-                            <TouchableOpacity onPress={() => handleOptionsToggle(item.id)} style={{marginRight: 10,marginTop: -80}}>
-                                <Ionicons name="ellipsis-vertical" size={24} color="black" />
-                            </TouchableOpacity>
-                            {/* Afficher les options si l'élément est sélectionné */}
-                            {showOptions === item.id && (
+                            <Switch
+                                trackColor={{ false: "#767577", true: "#81b0ff" }}
+                                thumbColor={item.open ? "#f5dd4b" : "#f4f3f4"}
+                                ios_backgroundColor="#3e3e3e"
+                                onValueChange={() => handleSwitchChange(item.id)}
+                                value={item.open}
+                                style={{ marginRight: 10 }}
+                            />
+                           
                                 <View style={{ flexDirection: 'column', marginTop: -80 }}>
-                                    <TouchableOpacity onPress={() => handleDeleteExercices(item.id, item.name)} style={{ marginRight: 10 }}>
-                                        <MaterialIcons name="delete" size={24} color="black" />
-                                    </TouchableOpacity>
                                     <TouchableOpacity onPress={() => navigation.navigate('EditExercice', {
                                         ExerciceId: item.id, ExerciceName: item.name})}>
                                         <MaterialCommunityIcons name="account-edit" size={24} color="black" />
                                     </TouchableOpacity>
                                 </View>
-                            )}
                         </View>
                     </View>
                 </View>
@@ -169,7 +146,7 @@ const AdminExercices = ({route,navigation}) => {
             <View >
                 <TouchableOpacity onPress={() => navigation.goBack()} style={{flexDirection:'row',marginRight:20,}}>
                     <AntDesign name="left" selectable={true} style={style.iconGauche} />
-                    <Text style={style.nameCategory}>{selectedCategory}</Text>
+                    <Text style={style.nameCategory}>{selectedSubCategory}</Text>
                 </TouchableOpacity>
             </View>
             <FlatList

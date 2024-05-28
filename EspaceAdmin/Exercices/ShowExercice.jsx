@@ -12,8 +12,9 @@ const ShowExercice = () => {
 
     const showExercice = async () => {
         try {
-            const response = await axiosProvider.get('admin/showExercice');
+            const response = await axiosProvider.get('exercises/showExercice');
             setExercises(response.data);
+            console.log("www")
         } catch (error) {
             console.log(error);
         }
@@ -24,9 +25,8 @@ const ShowExercice = () => {
 
         console.log('Preparing to toggle exercise status:', { exerciseId, newStatus });
 
-
         try {
-            const response = await axiosProvider.patch('admin/changeExerciseStatus', {
+            const response = await axiosProvider.patch('exercises/changeExerciseStatus', {
                 exerciseId: exerciseId,
                 newStatus: newStatus,
             });
@@ -38,7 +38,6 @@ const ShowExercice = () => {
                 exercise.id === exerciseId ? { ...exercise, active: newStatus } : exercise
             );
             setExercises([...updatedExercises]);
-
 
             console.log(`Statut de l'exercice mis à jour : ${newStatus}`);
         } catch (error) {
@@ -55,19 +54,10 @@ const ShowExercice = () => {
     }, []);
 
     const renderItem = ({ item }) => (
-        <View style={styles.exerciseItem}>
-            <Text style={styles.exerciseName}>{item.name}</Text>
-            <Switch
-                trackColor={{ false: "#767577", true: "#81b0ff" }}
-                thumbColor={item.active === '1' ? "#f5dd4b" : "#f4f3f4"}
-                ios_backgroundColor="#3e3e3e"
-                onValueChange={() => {
-                    console.log('Toggling exercise:', item.id, 'Current status:', item.active);
-                    toggleExerciseStatus(item.id, item.active);
-                }}
-                value={item.active === '1'}
-            />
-        </View>
+            <View style={styles.exerciseItem}>
+                <Text style={styles.exerciseName}>{item.name}</Text>
+              
+            </View>
     );
 
     return (

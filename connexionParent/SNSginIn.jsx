@@ -14,7 +14,6 @@ import AdminStack from "../EspaceAdmin/AdminStack";
 import AdminExercices from "../EspaceAdmin/Exercices/AdminExercices";
 import AddExercices from "../EspaceAdmin/Exercices/AddExercices";
 import EditExercice from "../EspaceAdmin/Exercices/EditExercice";
-import CategoryExercices from "../EspaceAdmin/Exercices/CategoryExercice";
 import {createStackNavigator} from "@react-navigation/stack";
 import ChildStack from "../EspaceChild/ChildStack";
 import React, {useState} from "react";

@@ -1,74 +1,27 @@
 import { Controller, useForm } from "react-hook-form";
 import React, { useState } from "react";
 import * as ImagePicker from "expo-image-picker";
-import { Alert, Image, KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View, Switch } from "react-native";
 import * as ImageManipulator from "expo-image-manipulator";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { axiosProvider } from "../../http/httpService";
-import styles from "../../EspaceparentEnfants/AddChildStyle";
+import styles from "../Exercices/AddExecices.Styles";
 import { AntDesign, Entypo } from "@expo/vector-icons";
-
+import { Picker } from '@react-native-picker/picker';
+import RNPickerSelect from "react-native-picker-select";
 const AddExercices = ({ navigation }) => {
     const { control, handleSubmit, formState: { errors }, reset } = useForm({
         defaultValues: {
             category: '',
             name: '',
-            week: '',
-            domaine: '',
-            degree: '',
+            classe: '',
             sub_category: '',
-            sub_sub_category: '',
-            sub_sub_sub_category: '',
             link: '',
             objective: '',
-            code: '',
-            trail: '',
-            active: '',
-            image: null,
-            description: '',
-            assignment: '',
+            active: '0',
         },
     });
-    const [selectedImage, setSelectedImage] = useState(null);
-
-    const openImagePicker = async () => {
-        try {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission Denied', 'Sorry, we need camera roll permission to upload images.');
-                return;
-            }
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-                base64: true
-            });
-
-            if (result.cancelled) {
-                console.log("Image selection cancelled");
-                return;
-            }
-
-            if (!result.uri) {
-                console.log("Selected Image URI is undefined");
-                return;
-            }
-            const resizedImage = await ImageManipulator.manipulateAsync(
-                result.uri,
-                [{ resize: { width: 80, height: 80 } }],
-                { compress: 0.6, format: ImageManipulator.SaveFormat.JPEG }
-            );
-
-            setSelectedImage(resizedImage.uri);
-            console.log("Selected Image:", resizedImage.uri);
-        } catch (error) {
-            console.error('Error picking image: ', error);
-            Alert.alert('Error', "Une erreur s'est produite lors du choix de l'image.");
-        }
-    };
-
+   
     const onSubmit = async (data) => {
         try {
             const token = await AsyncStorage.getItem('TokenAdmin');
@@ -77,19 +30,8 @@ const AddExercices = ({ navigation }) => {
                 formData.append(key, data[key]);
             });
 
-            if (selectedImage) {
-                const imageUriParts = selectedImage.split('.');
-                const fileExtension = imageUriParts[imageUriParts.length - 1];
-
-                formData.append('image', {
-                    uri: selectedImage,
-                    name: `image.${fileExtension}`,
-                    type: `image/${fileExtension}`,
-                });
-            }
-
-            console.log('token', token);
-
+            formData.append('created_at', new Date().toISOString());
+            
             const response = await axiosProvider.post('exercises/createExercise', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -100,7 +42,7 @@ const AddExercices = ({ navigation }) => {
             console.log(response.data);
 
             if (response.status === 201) {
-                navigation.navigate('AdminExercices', { selectedCategory: data.category });
+                navigation.navigate('AdminExercices');
                 reset();
             } else {
                 Alert.alert('Erreur', 'Échec de la création d\'un exercice. Veuillez réessayer.');
@@ -118,7 +60,7 @@ const AddExercices = ({ navigation }) => {
 
     return (
         <KeyboardAvoidingView behavior="padding" style={styles.container}>
-            <ScrollView>
+            <ScrollView >
                 <View>
                     <View style={{ flexDirection: 'row' }}>
                         <TouchableOpacity onPress={() => navigation.goBack()} >
@@ -128,21 +70,7 @@ const AddExercices = ({ navigation }) => {
                     </View>
 
                     <View style={styles.content}>
-
-                        <View>
-                            <Text style={styles.label}>Choisir la photo de l'exercice</Text>
-                            {selectedImage ? (
-                                <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
-                                    <Image source={{ uri: selectedImage }} style={styles.uploadedImage} />
-                                </TouchableOpacity>
-                            ) : (
-                                <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
-                                    <Entypo name="plus" style={styles.iconplus} />
-                                    <Text style={styles.textimage}>AJOUTER UNE IMAGE</Text>
-                                </TouchableOpacity>
-                            )}
-                        </View>
-
+                        
                         {/* name */}
                         <Controller
                             control={control}
@@ -165,69 +93,31 @@ const AddExercices = ({ navigation }) => {
                             rules={{ required: 'Ce champ est requis' }}
                         />
 
-                        {/* week */}
+                        {/* class */}
                         <Controller
                             control={control}
                             render={({ field }) => (
                                 <>
-                                    <Text style={styles.label}>week*</Text>
+                                    <Text style={styles.label}>classe*</Text>
                                     <View style={styles.inputwrapper}>
-                                        <TextInput
-                                            placeholder="week"
-                                            onBlur={field?.onBlur}
-                                            onChangeText={(value) => field?.onChange(value)}
+                                        <RNPickerSelect
+                                            onValueChange={(value) => field?.onChange(value)}
+                                            items={[
+                                                { label: '1/2', value: '1/2' },
+                                                { label: '3/4', value: '3/4' },
+                                                { label: '5/6', value: '5/6' },
+                                                { label: '7/8', value: '7/8' },
+                                                { label: '9/10', value: '9/10' },
+                                            ]}
                                             value={field?.value}
-                                            style={styles.inputcontent}
+                                            
+                                            placeholder={{ label: 'Select a class', value: null }}
                                         />
                                     </View>
-                                    {errors.week && <Text style={{ color: 'red' }}>{errors.week.message}</Text>}
+                                    {errors.classe && <Text style={{ color: 'red' }}>{errors.classe.message}</Text>}
                                 </>
                             )}
-                            name="week"
-                            rules={{ required: 'Ce champ est requis' }}
-                        />
-
-                        {/* domaine */}
-                        <Controller
-                            control={control}
-                            render={({ field }) => (
-                                <>
-                                    <Text style={styles.label}>domaine*</Text>
-                                    <View style={styles.inputwrapper}>
-                                        <TextInput
-                                            placeholder="domaine"
-                                            onBlur={field?.onBlur}
-                                            onChangeText={(value) => field?.onChange(value)}
-                                            value={field?.value}
-                                            style={styles.inputcontent}
-                                        />
-                                    </View>
-                                    {errors.domaine && <Text style={{ color: 'red' }}>{errors.domaine.message}</Text>}
-                                </>
-                            )}
-                            name="domaine"
-                            rules={{ required: 'Ce champ est requis' }}
-                        />
-
-                        {/* degree */}
-                        <Controller
-                            control={control}
-                            render={({ field }) => (
-                                <>
-                                    <Text style={styles.label}>degree*</Text>
-                                    <View style={styles.inputwrapper}>
-                                        <TextInput
-                                            placeholder="degree"
-                                            onBlur={field?.onBlur}
-                                            onChangeText={(value) => field?.onChange(value)}
-                                            value={field?.value}
-                                            style={styles.inputcontent}
-                                        />
-                                    </View>
-                                    {errors.degree && <Text style={{ color: 'red' }}>{errors.degree.message}</Text>}
-                                </>
-                            )}
-                            name="degree"
+                            name="classe"
                             rules={{ required: 'Ce champ est requis' }}
                         />
                         {/* category */}
@@ -274,50 +164,6 @@ const AddExercices = ({ navigation }) => {
                             rules={{ required: 'Ce champ est requis' }}
                         />
 
-                        {/* sub_sub_category */}
-                        <Controller
-                            control={control}
-                            render={({ field }) => (
-                                <>
-                                    <Text style={styles.label}>sub_sub_category*</Text>
-                                    <View style={styles.inputwrapper}>
-                                        <TextInput
-                                            placeholder="sub_sub_category"
-                                            onBlur={field?.onBlur}
-                                            onChangeText={(value) => field?.onChange(value)}
-                                            value={field?.value}
-                                            style={styles.inputcontent}
-                                        />
-                                    </View>
-                                    {errors.sub_sub_category && <Text style={{ color: 'red' }}>{errors.sub_sub_category.message}</Text>}
-                                </>
-                            )}
-                            name="sub_sub_category"
-                            rules={{ required: 'Ce champ est requis' }}
-                        />
-
-                        {/* sub_sub_sub_category */}
-                        <Controller
-                            control={control}
-                            render={({ field }) => (
-                                <>
-                                    <Text style={styles.label}>sub_sub_sub_category*</Text>
-                                    <View style={styles.inputwrapper}>
-                                        <TextInput
-                                            placeholder="sub_sub_sub_category"
-                                            onBlur={field?.onBlur}
-                                            onChangeText={(value) => field?.onChange(value)}
-                                            value={field?.value}
-                                            style={styles.inputcontent}
-                                        />
-                                    </View>
-                                    {errors.sub_sub_sub_category && <Text style={{ color: 'red' }}>{errors.sub_sub_sub_category.message}</Text>}
-                                </>
-                            )}
-                            name="sub_sub_sub_category"
-                            rules={{ required: 'Ce champ est requis' }}
-                        />
-
                         {/* link */}
                         <Controller
                             control={control}
@@ -361,64 +207,17 @@ const AddExercices = ({ navigation }) => {
                             name="objective"
                             rules={{ required: 'Ce champ est requis' }}
                         />
-
-                        {/* code */}
-                        <Controller
-                            control={control}
-                            render={({ field }) => (
-                                <>
-                                    <Text style={styles.label}>code*</Text>
-                                    <View style={styles.inputwrapper}>
-                                        <TextInput
-                                            placeholder="code"
-                                            onBlur={field?.onBlur}
-                                            onChangeText={(value) => field?.onChange(value)}
-                                            value={field?.value}
-                                            style={styles.inputcontent}
-                                        />
-                                    </View>
-                                    {errors.code && <Text style={{ color: 'red' }}>{errors.code.message}</Text>}
-                                </>
-                            )}
-                            name="code"
-                            rules={{ required: 'Ce champ est requis' }}
-                        />
-
-                        {/* trail */}
-                        <Controller
-                            control={control}
-                            render={({ field }) => (
-                                <>
-                                    <Text style={styles.label}>trail*</Text>
-                                    <View style={styles.inputwrapper}>
-                                        <TextInput
-                                            placeholder="trail"
-                                            onBlur={field?.onBlur}
-                                            onChangeText={(value) => field?.onChange(value)}
-                                            value={field?.value}
-                                            style={styles.inputcontent}
-                                        />
-                                    </View>
-                                    {errors.trail && <Text style={{ color: 'red' }}>{errors.trail.message}</Text>}
-                                </>
-                            )}
-                            name="trail"
-                            rules={{ required: 'Ce champ est requis' }}
-                        />
-
                         {/* active */}
-                        {/*<Controller
+                        <Controller
                             control={control}
                             render={({ field }) => (
                                 <>
                                     <Text style={styles.label}>active*</Text>
-                                    <View style={styles.inputwrapper}>
-                                        <TextInput
-                                            placeholder="active"
-                                            onBlur={field?.onBlur}
-                                            onChangeText={(value) => field?.onChange(value)}
-                                            value={field?.value}
-                                            style={styles.inputcontent}
+                                    <View style={styles.switchWrapper}>
+                                        <Switch
+                                            value={field?.value === '1'}
+                                            onValueChange={(value) => field?.onChange(value ? '1' : '0')}
+                                            style={styles.switch}
                                         />
                                     </View>
                                     {errors.active && <Text style={{ color: 'red' }}>{errors.active.message}</Text>}
@@ -426,7 +225,7 @@ const AddExercices = ({ navigation }) => {
                             )}
                             name="active"
                             rules={{ required: 'Ce champ est requis' }}
-                        />*/}
+                        />
                     </View>
                 </View>
                 <TouchableOpacity style={styles.buttom} onPress={handleSubmit(onSubmit)} >

@@ -1,143 +1,103 @@
-import React, {useState} from "react";
-import * as ImagePicker from "expo-image-picker";
-import {Alert, Image, KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View} from "react-native";
-import * as ImageManipulator from "expo-image-manipulator";
+import React, { useState } from "react";
+import { Alert, KeyboardAvoidingView, ScrollView, Text, TextInput, TouchableOpacity, View, Platform, Switch } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {axiosProvider} from "../../http/httpService";
+import { axiosProvider } from "../../http/httpService";
 import styles from "../../EspaceparentEnfants/updateStyle";
-import {AntDesign, Entypo, MaterialIcons} from "@expo/vector-icons";
+import { AntDesign, Entypo } from "@expo/vector-icons";
+import { Picker } from "@react-native-picker/picker";
+import RNPickerSelect from 'react-native-picker-select';
 
 const EditExercice = ({ route, navigation }) => {
     const { ExerciceId, ExerciceName } = route.params;
-    const [selectedImage, setSelectedImage] = useState(null);
     const [category, setCategory] = useState("");
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
-    const [week, setWeek] = useState("");
-    const [domaine, setDomaine] = useState("");
-    const [degree, setDegree] = useState("");
+    const [classe, setClass] = useState("");
     const [subCategory, setSubCategory] = useState("");
-    const [subSubCategory, setSubSubCategory] = useState("");
-    const [subSubSubCategory, setSubSubSubCategory] = useState("");
     const [objective, setObjective] = useState("");
-    const [code, setCode] = useState("");
-    const [trail, setTrail] = useState("");
     const [active, setActive] = useState("");
-
-    const openImagePicker = async () => {
-        try {
-            const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-            if (status !== 'granted') {
-                Alert.alert('Permission Denied', 'Sorry, we need camera roll permission to upload images.');
-                return;
-            }
-            const result = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                allowsEditing: true,
-                aspect: [1, 1],
-                quality: 1,
-                base64: true
-            });
-
-            if (result.cancelled) {
-                console.log("Image selection cancelled");
-                return;
-            }
-
-            if (!result.assets[0].uri) {
-                console.log("Selected Image URI is undefined");
-                return;
-            }
-            const resizedImage = await ImageManipulator.manipulateAsync(
-                result.assets[0].uri,
-                [{ resize: { width: 80, height: 80 } }],
-                { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG }
-            );
-
-            setSelectedImage(resizedImage.uri);
-            console.log("Selected Image:", resizedImage.uri);
-        } catch (error) {
-            console.error('Error picking image: ', error);
-            Alert.alert('Error', "Une erreur s'est produite lors du choix de l'image.");
-        }
-    };
-    const resetForm = () => {
-        setSelectedImage(null);
-        setName("");
-        setCategory('')
-        setDescription("");
-        setAssignment("");
-    };
-
+    const [link, setLink] = useState("");
 
     const onSubmit = async () => {
         try {
             const token = await AsyncStorage.getItem('TokenAdmin');
-            const formData = new FormData();
-            formData.append('category', category);
-            formData.append('name', name);
-            formData.append('description', description);
-            formData.append('week', week);
-            formData.append('domaine', domaine);
-            formData.append('degree', degree);
-            formData.append('sub_category', subCategory);
-            formData.append('sub_sub_category', subSubCategory);
-            formData.append('sub_sub_sub_category', subSubSubCategory);
-            formData.append('link', link);
-            formData.append('objective', objective);
-            formData.append('code', code);
-            formData.append('trail', trail);
-            formData.append('active', active);
-            if (selectedImage) {
-                const imageUriParts = selectedImage.split('.');
-                const fileExtension = imageUriParts[imageUriParts.length - 1];
+            const requestBody = {
+                category,
+                name,
+                description,
+                class: classe,
+                subCategory,
+                objective,
+                active,
+                link,
+                updated_at: new Date().toISOString()
+            };
 
-                formData.append('image', {
-                    uri: selectedImage,
-                    name: `image.${fileExtension}`,
-                    type: `image/${fileExtension}`,
-                });
-            }
-
-            const response = await axiosProvider.patch(`exercises/updateExercise/${ExerciceId}`, formData, token);
-            console.log(response.data)
-
+            const response = await axiosProvider.patch(`exercises/updateExercise/${ExerciceId}`, requestBody, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            console.log(response)
             if (response.status === 200) {
-                console.log(response.data)
                 navigation.goBack();
-                resetForm();
             } else {
-                // Échec de la mise à jour
-                Alert.alert('Erreur', 'Échec de la mise à jour du l\'Exercice. Veuillez réessayer.');
+                Alert.alert('Erreur', 'Échec de la mise à jour de l\'exercice. Veuillez réessayer.');
             }
         } catch (error) {
-            console.error('Erreur lors de la mise à jour du compte :', error);
-            Alert.alert('Erreur', 'Une erreur s\'est produite lors de la mise à jour du l\'Exercice.');
+            console.error('Erreur lors de la mise à jour de l\'exercice :', error);
+            Alert.alert('Erreur', 'Une erreur s\'est produite lors de la mise à jour de l\'exercice.');
         }
     };
+
     return (
         <KeyboardAvoidingView behavior="padding" enabled >
             <ScrollView style={styles.container}>
-                <View >
+                <View>
                     <View style={{ alignItems: 'center', justifyContent: 'space-between', marginTop: 17 }}>
-                        <AntDesign name="check" onPress={onSubmit} style={styles.icon} />
-                        <Text style={styles.h1}>Modifier {ExerciceName}</Text>
                         <Entypo name="cross" style={styles.iconLeft} onPress={() => navigation.goBack()} />
+                        <Text style={styles.h1}>Modifier {ExerciceName}</Text>
+                        <TouchableOpacity onPress={onSubmit} style={styles.icon}>
+                            <AntDesign name="check" size={24} color={'#242F65'} />
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.content}>
-                        <View>
-                            <Text style={styles.label}>Choisir la photo de l'exercice</Text>
-                            {selectedImage ? (
 
-                                <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
-                                    <Image source={{ uri: selectedImage }} style={styles.uploadedImage} />
-                                </TouchableOpacity>
-                            ) : (
-                                <TouchableOpacity onPress={openImagePicker} style={styles.inputimagewrapper}>
-                                    <Entypo name="plus" style={styles.iconplus} />
-                                    <Text style={styles.textimage}>AJOUTER UNE IMAGE</Text>
-                                </TouchableOpacity>
-                            )}
+                        <View>
+                            <Text style={styles.label}>Classe*</Text>
+                            <View style={styles.inputcontent}>
+                                <View style={styles.inputwrapper}>
+                                    {Platform.OS === 'ios' ? (
+                                        <>
+                                            <RNPickerSelect
+                                                value={classe}
+                                                onValueChange={(value) => setClass(value)}
+                                                placeholder={{ label: 'Choisir une classe', value: null }}
+                                                items={[
+                                                    { label: '1/2', value: '1/2' },
+                                                    { label: '3/4', value: '3/4' },
+                                                    { label: '5/6', value: '5/6' },
+                                                    { label: '7/8', value: '7/8' },
+                                                    { label: '9/10', value: '9/10' }
+                                                ]}
+                                            />
+                                            <AntDesign name="down" size={24} color="black" />
+                                        </>
+                                    ) : (
+                                        <Picker
+                                            selectedValue={classe}
+                                            style={{ height: 50, width: '100%' }}
+                                            onValueChange={(value) => setClass(value)}
+                                        >
+                                            <Picker.Item label="Choisir une classe" value={null} />
+                                            {classes.map((item, index) => (
+                                                <Picker.Item key={index} label={item.label} value={item.value} />
+                                            ))}
+                                        </Picker>
+                                    )}
+                                </View>
+                            </View>
                         </View>
 
                         {/* category */}
@@ -153,6 +113,17 @@ const EditExercice = ({ route, navigation }) => {
                             </View>
                         </View>
 
+                        <View>
+                            <Text style={styles.label}>sub category*</Text>
+                            <View style={styles.inputwrapper}>
+                                <TextInput
+                                    placeholder="sub category"
+                                    onChangeText={(text) => setSubCategory(text)}
+                                    value={subCategory}
+                                    style={styles.inputcontent}
+                                />
+                            </View>
+                        </View>
 
                         {/* name */}
                         <View>
@@ -161,8 +132,20 @@ const EditExercice = ({ route, navigation }) => {
                                 <TextInput
                                     style={styles.inputcontent}
                                     placeholder="name"
-                                    onChange={(e) => setName(e.nativeEvent.text)}
+                                    onChangeText={(text) => setName(text)}
                                     value={name}
+                                />
+                            </View>
+                        </View>
+
+                        <View>
+                            <Text style={styles.label}>link*</Text>
+                            <View style={styles.inputwrapper}>
+                                <TextInput
+                                    style={styles.inputcontent}
+                                    placeholder="link"
+                                    onChangeText={(text) => setLink(text)}
+                                    value={link}
                                 />
                             </View>
                         </View>
@@ -174,31 +157,23 @@ const EditExercice = ({ route, navigation }) => {
                                 <TextInput
                                     style={styles.inputcontent}
                                     placeholder="description"
-                                    onChange={(e) => setDescription(e.nativeEvent.text)}
+                                    onChangeText={(text) => setDescription(text)}
                                     value={description}
                                 />
                             </View>
                         </View>
-
-                        {/* assignment */}
-                        <View>
-                            <Text style={styles.label}>assignment*</Text>
-                            <View style={styles.inputwrapper}>
-                                <TextInput
-                                    style={styles.inputcontent}
-                                    placeholder="assignment"
-                                    onChange={(e) => setAssignment(e.nativeEvent.text)}
-                                    value={assignment}
-                                />
-                            </View>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text style={{ ...styles.label, flex: 1 }}>Actif*</Text>
+                            <Switch
+                                value={active === 1}
+                                onValueChange={(value) => setActive(value ? 1 : 0)}
+                            />
                         </View>
-
                     </View>
                 </View>
             </ScrollView>
         </KeyboardAvoidingView>
     );
-
 }
 
-export default EditExercice
+export default EditExercice;

@@ -1,4 +1,3 @@
-// EnfantForm.js
 import React, { useEffect, useState} from 'react';
 import {Text, TextInput, TouchableOpacity, View, Image, Platform, Alert, KeyboardAvoidingView} from 'react-native';
 import { Entypo, MaterialIcons, AntDesign } from '@expo/vector-icons';
@@ -138,8 +137,6 @@ const EnfantForm = ({ index,formData, onChildDataChange,isDataSubmitted,onImageS
                         </View>
                     </View>
                 </View>
-
-                <Text style={styles.h2}>Connexion</Text>
 
                 <View>
                     <Text style={styles.label}>Identifiant*</Text>
