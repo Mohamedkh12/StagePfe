@@ -2,9 +2,9 @@ import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
     container: {
-        width: '100%',
+       
+        padding: 20,
         backgroundColor: '#FFFFFF',
-        padding: 10,
     },
     childContainer: {
         flexDirection: 'row',
@@ -51,19 +51,46 @@ const styles = StyleSheet.create({
         marginLeft: 25
     },
     box: {
-        flex: 1,
         width: '90%',
         marginLeft: '5%',
-        height: 80,
         marginTop: 30,
+        height: 60,
         backgroundColor: '#FFFFFF',
         borderWidth: 1,
         borderColor: '#242F65',
         borderRadius: 8,
         flexDirection: 'row',
-        padding: 10,
+        //padding: 10,
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        shadowColor: '#242F65',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    boxExercice: {
+        width: '90%',
+        marginLeft: '5%',
+        marginTop: 20,
+        height: 'auto',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#242F65',
+        borderRadius: 10,
+        flexDirection: 'column',
+        //padding: 10,
+        alignItems: 'flex-start',
+        shadowColor: '#242F65',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 5,
     },
 });
 

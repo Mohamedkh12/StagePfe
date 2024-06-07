@@ -16,7 +16,6 @@ const EditActiveExercice = ({ route, navigation }) => {
     const [subCategory, setSubCategory] = useState("");
     const [objective, setObjective] = useState("");
     const [active, setActive] = useState("");
-    const [link, setLink] = useState("");
 
     const onSubmit = async () => {
         try {
@@ -25,12 +24,11 @@ const EditActiveExercice = ({ route, navigation }) => {
                 category,
                 name,
                 description,
-                class: classe,
+                classe: classe,
                 subCategory,
                 objective,
                 active,
-                link,
-                updated_at: new Date().toISOString()
+                updated_at: new Date()
             };
 
             const response = await axiosProvider.patch(`exercises/updateExercise/${ExerciceId}`, requestBody, {
@@ -134,18 +132,6 @@ const EditActiveExercice = ({ route, navigation }) => {
                                     placeholder="name"
                                     onChangeText={(text) => setName(text)}
                                     value={name}
-                                />
-                            </View>
-                        </View>
-
-                        <View>
-                            <Text style={styles.label}>link*</Text>
-                            <View style={styles.inputwrapper}>
-                                <TextInput
-                                    style={styles.inputcontent}
-                                    placeholder="link"
-                                    onChangeText={(text) => setLink(text)}
-                                    value={link}
                                 />
                             </View>
                         </View>

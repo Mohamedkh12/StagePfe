@@ -44,7 +44,32 @@ const AdminExercices = ({route,navigation}) => {
     useEffect(() => {
         fetchExercisesByCategory();
     }, [selectedCategory]);
+    const handleSwitchChange = async (exerciseId, currentStatus) => {
+        try {
+            // Définir le nouveau statut
+            const newStatus = currentStatus === '1' ? '0' : '1';
 
+            // Log pour déboguer
+            console.log(`Exercice ID: ${exerciseId}, Nouveau statut: ${newStatus}`);
+
+            // Mettre à jour l'état de l'exercice dans la base de données
+            const response = await axiosProvider.patch(`exercises/changeExerciseStatus?exerciseId=${exerciseId}&newStatus=${newStatus}`);
+
+            // Vérification de la réponse
+            console.log(`Réponse du serveur:`, response.data);
+
+            // Mettre à jour l'état local de l'exercice
+            setExercises(prevExercises =>
+                prevExercises.map(exercise =>
+                    exercise.id === exerciseId ? { ...exercise, active: newStatus } : exercise
+                )
+            );
+
+            console.log(`Statut de l'exercice mis à jour : ${newStatus}`);
+        } catch (error) {
+            console.error(`Erreur lors du changement de statut de l'exercice :`, error);
+        }
+    };
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         fetchExercisesByCategory();
@@ -78,14 +103,7 @@ const AdminExercices = ({route,navigation}) => {
     const handleOptionsToggle = (exerciseId) => {
         setShowOptions(showOptions === exerciseId ? null : exerciseId);
     };
-    const handleSwitchChange = (exerciseId) => {
-        // Mettre à jour l'état de l'exercice avec l'ID correspondant
-        setExercises(prevExercises =>
-            prevExercises.map(exercise =>
-                exercise.id === exerciseId ? { ...exercise, open: !exercise.open } : exercise
-            )
-        );
-    };
+   
     const renderExerciceItem = ({ item }) => {
         const ImageUrl = item.link.replace('index.html', 'preview.png');
         const token = "?Token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIzIiwianRpIjoiYTZmYjc1MjYxYzQ5NGEwNzFjMjJlM2Y1YTRhOTg4ODJhNjRjZWQwMThkZGI2OGU3NTgwZWNjMTRkMWRmNDJhMWI2ZjFlZTlkYWQ4ZjdkMjAiLCJpYXQiOjE3MTY4MjY2MTYuMDIwNDY0LCJuYmYiOjE3MTY4MjY2MTYuMDIwNDY3LCJleHAiOjE3NDgzNjI2MTYuMDE1MjE2LCJzdWIiOiI2OTAiLCJzY29wZXMiOltdfQ.DdPe3ZdUD5FKCsYtnkOYR8FuEhRvP699t4Z5vbESe-agNp6pljIbWVRirITOvnRfjBkRgFRQ67vtVGakzTFql7-T4eRZ6J0K0ZeoV-RJEK4H33PplzJniC2eYOS3FEJzsr3iZMjeus3NjS2sWeFGPyJyj1e4TtBClHQtMYq6PAlNts6gGV-gcqo0iet0_HSVdzUrLzLYjR42rj1_tIZmAtqNYBeYt3RbKCj3ovCPurwjGVXoNKbZ3CTZQ2quMXLSPwMMLpr807qOn9sqYzUcZrWtQ9Pke5tFyVPbRHJZeWRFIl6AXl3OGnDl4c8zPH3IpVTfP1KqOE1HCA3iY4V5Fv2JKORNVtIwfoYoWRBGQpGPaiEueT_IBkVVqwwr0K0CB-scc1hQG3iF6ZO0q_uqDSfAp899Ho3GEglL8Ns_EBRppi26XYzSEyULzFpXn5rANlKxh2iDcUXQRZduwFQHZ2KfFKDkcKbBBT2E7biw_do2LkFIIpSUzNF9UXp9_Q8tAQzQW7Efl9iNfavzZHMcIf66cDCePax3Xj5I1gO9nI2PrwRi_o084L4u6r_bFHB63VwpSPEfmkh5S3cnOFhaBSR4OaHalhQOovgBnEPbLecoym7Wfz161DZHd6J6_1-7XcHlKzzjG7xn61zIJRAucO-p7gnXud7S5SCUeVyWFCk";
@@ -113,14 +131,14 @@ const AdminExercices = ({route,navigation}) => {
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginTop: 20 }}>
                             <Switch
                                 trackColor={{ false: "#767577", true: "#81b0ff" }}
-                                thumbColor={item.open ? "#f5dd4b" : "#f4f3f4"}
+                                thumbColor={item.active === '1' ? "#f5dd4b" : "#f4f3f4"}
                                 ios_backgroundColor="#3e3e3e"
-                                onValueChange={() => handleSwitchChange(item.id)}
-                                value={item.open}
+                                onValueChange={() => handleSwitchChange(item.id, item.active)}
+                                value={item.active === '1'}
                                 style={{ marginRight: 10 }}
                             />
-                           
-                                <View style={{ flexDirection: 'column', marginTop: -80 }}>
+
+                            <View style={{ flexDirection: 'column', marginTop: -80 }}>
                                     <TouchableOpacity onPress={() => navigation.navigate('EditExercice', {
                                         ExerciceId: item.id, ExerciceName: item.name})}>
                                         <MaterialCommunityIcons name="account-edit" size={24} color="black" />

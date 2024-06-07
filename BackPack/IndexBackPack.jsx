@@ -15,7 +15,7 @@ const IndexBackPack = ({ navigation }) => {
     const getToken = async (key) => {
         return await AsyncStorage.getItem(key);
     };
-
+    
     useEffect(() => {
         const fetchData = async () => {
             try {

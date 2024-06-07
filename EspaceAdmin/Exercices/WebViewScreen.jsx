@@ -20,6 +20,7 @@ const WebViewScreen = ({ route, navigation }) => {
         };
     }, []);
 
+
     return (
         <View style={styles.container}>
             <WebView

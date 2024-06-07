@@ -38,7 +38,7 @@ const ChildrenList = ({ setSelectedChild, onSelectChildId }) => {
             console.error(error.message);
         }
     };
-
+    
     const onRefresh = async () => {
         setRefreshing(true);
         await fetchData();

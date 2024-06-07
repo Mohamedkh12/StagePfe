@@ -2,44 +2,80 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { FlatList, TouchableOpacity, Text, RefreshControl, View } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { axiosProvider } from '../http/httpService';
+import ChildrenList from "./ChildrenList"
+import JWT from 'expo-jwt';
 import styles from './styles';
 
 const getToken = async (key) => {
     return await AsyncStorage.getItem(key);
 };
 
-const CategoryList = ({ navigation, selectedChild }) => {
-    const [categories, setCategories] = useState([]);
+const CategoryList = ({ navigation }) => {
+    const [categoriesData, setCategoriesData] = useState([]);
+    const [classeData, setClasseData] = useState("");
     const [refreshing, setRefreshing] = useState(false);
     const [countExercice, setCountExercice] = useState({});
-
+    const [selectedChildId, setSelectedChildId] = useState(null);
     useEffect(() => {
-        fetchCategories();
-    }, [selectedChild]);
+        const fetchData = async () => {
+            try {
+                const token = await getToken('jwtToken');
+                const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
+                const parentId = decodedToken.sub;
+                const response = await axiosProvider.getWithToken(`parents/childrenIdName/${parentId}`, token);
+                const children = response.data;
 
-    const fetchCategories = async () => {
+                setSelectedChildId(children[0].id);
+            } catch (error) {
+                console.error(error.message);
+            }
+        };
+
+        fetchData();
+    }, []);
+   
+    const handleSelectChildId = (childId) => {
+        setSelectedChildId(childId);
+        global.childId=selectedChildId
+    };
+    useEffect(() => {
+        if (selectedChildId) {
+            fetchCategories(selectedChildId);
+        }
+    }, [selectedChildId]);
+
+    const fetchCategories = async (childId) => {
         try {
             const token = await getToken('jwtToken');
-            const response = await axiosProvider.getWithToken('exercises/Categories', token);
+            const decodedToken = JWT.decode(token, 'SECRET-CODE142&of', { timeSkew: 30 });
+            const parentId = decodedToken.sub;
+            console.log(parentId)
+            console.log(selectedChildId)
+            const response = await axiosProvider.getWithToken(`exercises/getCategoriesByParentAndChild?idParent=${parentId}&childId=${selectedChildId}`, token);
+            
             const categoriesData = response.data.categories;
-
-            setCategories(categoriesData);
-
-            if (selectedChild) {
-                await fetchCountExercice(selectedChild, categoriesData);
+            console.log(categoriesData)
+            if (Array.isArray(categoriesData)) {
+                setCategoriesData(categoriesData);
+                setClasseData(response.data.classe)
+                console.log(classeData)
+                await fetchCountExercice(childId, categoriesData);
+            } else {
+                console.error("Categories data is not an array.");
             }
         } catch (error) {
             console.error(error.message);
         }
     };
 
-    const fetchCountExercice = async (childName, categoriesData) => {
+
+    const fetchCountExercice = async (childId, categories) => {
         try {
             const token = await getToken('jwtToken');
             const counts = {};
 
-            for (const category of categoriesData) {
-                const response = await axiosProvider.getWithToken(`exercises/CountExercice?category=${category}&child=${childName}`, token);
+            for (const category of categories) {
+                const response = await axiosProvider.getWithToken(`exercises/count-by-category-and-child?category=${category}&child=${childId}`, token);
                 counts[category] = response.data;
             }
 
@@ -50,21 +86,22 @@ const CategoryList = ({ navigation, selectedChild }) => {
     };
 
     const onRefresh = useCallback(() => {
-        setRefreshing(true);
-        fetchCategories();
-        setRefreshing(false);
-    }, [selectedChild]);
+        if (selectedChildId) {
+            setRefreshing(true);
+            fetchCategories(selectedChildId);
+            setRefreshing(false);
+        }
+    }, [selectedChildId]);
 
-    const memoizedCategories = useMemo(() => categories, [categories]);
     const memoizedCountExercice = useMemo(() => countExercice, [countExercice]);
 
     const renderCategory = ({ item }) => {
+        const category = item;
         return (
             <TouchableOpacity
-                onPress={() => navigation.navigate('ListExercices', { selectedCategory: item })}>
+                onPress={() => navigation.navigate('SubCategoryParents', { selectedCategory: category,selectedClass:classeData,selectedChildId:selectedChildId })}>
                 <View style={styles.box}>
-                    <Text style={styles.h2}>{item}</Text>
-                    <Text style={styles.text}>{memoizedCountExercice[item]} exercices</Text>
+                    <Text style={styles.h2}>{category}</Text>
                 </View>
             </TouchableOpacity>
         );
@@ -72,13 +109,14 @@ const CategoryList = ({ navigation, selectedChild }) => {
 
     return (
         <View style={{width:'100%',height:'100%',backgroundColor: '#FFFFFF'}}>
+            <View>
+                <ChildrenList setSelectedChild={setSelectedChildId} onSelectChildId={handleSelectChildId} />
+            </View>
             <FlatList
-                data={memoizedCategories}
+                data={categoriesData}
                 renderItem={renderCategory}
                 keyExtractor={(category) => category}
-                refreshControl={
-                    <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                }
+                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
             />
         </View>
     );

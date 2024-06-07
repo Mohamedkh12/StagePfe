@@ -3,12 +3,13 @@ import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { Image, Platform, StyleSheet } from 'react-native';
 import Enfants from '../EspaceparentEnfants/Enfants';
 import ParentProfil from '../EspaceParentProfil/ParentProfil';
-import BackPack from '../BackPack/BackPack';
-import ParentExercices from '../EspaceParentExercices/ParentExercices';
+import BackPackNavigator from '../BackPack/BackPack';
+import CategoryList from '../EspaceParentExercices/CategoryList';
 import {createStackNavigator} from "@react-navigation/stack";
 import ListExercices from "../EspaceParentExercices/ListExercice";
 import React from "react";
 import IndexBackPack from "../BackPack/IndexBackPack";
+import SubCategoryParents from "../EspaceParentExercices/SubCategoryParents"
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -16,7 +17,8 @@ const Stack = createStackNavigator();
 const ParentExercicesStack = () => {
     return (
         <Stack.Navigator>
-            <Stack.Screen name="ParentExercices" component={ParentExercices} options={{headerShown: false}}/>
+            <Stack.Screen name="CategoryList" component={CategoryList} options={{headerShown: false}}/>
+            <Stack.Screen name="SubCategoryParents" component={SubCategoryParents} options={{headerShown: false}}/>
         </Stack.Navigator>
     );
 };
@@ -45,8 +47,8 @@ const AppNavigator = () => {
                 }}
             />
             <Tab.Screen
-                name="BackPack"
-                component={BackPack}
+                name="BackPackNavigator"
+                component={BackPackNavigator}
                 options={{
                     title: 'BackPack',
                     tabBarIcon: () => (
@@ -68,7 +70,7 @@ const AppNavigator = () => {
                 name="ParentProfil"
                 component={ParentProfil}
                 options={{
-                    title: 'Compte parent',
+                    title: 'Profile',
                     tabBarIcon: () => (
                         <FontAwesome name="user" size={24} color="black" style={styles.icon} />
                     ),

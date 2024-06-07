@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import {View, Text, Image, TouchableOpacity, FlatList, RefreshControl, Alert} from 'react-native';
+import { View, Text, Image, TouchableOpacity, FlatList, RefreshControl, Alert } from 'react-native';
 import { AntDesign, MaterialIcons, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import styles from './styles';
 import { axiosProvider } from '../http/httpService';
@@ -86,38 +86,44 @@ const Enfants = ({ navigation }) => {
 
     const renderEnfantItem = ({ item }) => {
         return (
-            <View>
-                <View style={styles.box}>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Image source={{ uri: item.image }} style={styles.image} />
-                        <View style={{ flexDirection: 'column' }}>
-                            <Text style={styles.text}>{item.email}</Text>
-                            <Text style={styles.text}>{item.classe}</Text>
-                        </View>
-                        <View style={{ flexDirection: 'column', alignItems: 'flex-end', marginLeft: 20, marginTop: 20 }}>
-                            <TouchableOpacity onPress={() => handleOptionsToggle(item.id)} style={{ marginBottom: 5 }}>
-                                <Ionicons name="ellipsis-vertical" size={24} color="black" />
-                            </TouchableOpacity>
-                            {showOptions === item.id && (
-                                <View style={{ flexDirection: 'row' }}>
-                                    <TouchableOpacity onPress={() => handleDeleteChild(item.id, item.email)} style={{ marginRight: 10 }}>
-                                        <MaterialIcons name="delete" size={24} color="black" />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => navigation.navigate('UpdateCompteChild', { childId: item.id, childName: item.email })}>
-                                        <MaterialCommunityIcons name="account-edit" size={24} color="black" />
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                        </View>
+            <View style={styles.box}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Image source={{ uri: item.image }} style={styles.image} />
+                    <View style={{ flexDirection: 'column', marginLeft: 10 }}>
+                        <Text style={styles.text}>{item.email}</Text>
+                        <Text style={styles.text}>{item.classe}</Text>
                     </View>
+                    <TouchableOpacity onPress={() => handleOptionsToggle(item.id)} style={styles.ellipsisButton}>
+                        {showOptions !== item.id && (
+                            <Ionicons name="ellipsis-vertical" size={24} color="black" />
+                        )}
+                    </TouchableOpacity>
                 </View>
+                {showOptions === item.id && (
+                    <View style={styles.optionsBox}>
+                        <TouchableOpacity onPress={() => {
+                            navigation.navigate('UpdateCompteChild', { childId: item.id, childName: item.email });
+                            handleOptionsToggle(item.id);
+                        }} style={styles.option}>
+                            <MaterialCommunityIcons name="account-edit" size={24} color="black" />
+                            <Text style={styles.optionText}>Modifier</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={() => {
+                            handleDeleteChild(item.id, item.email);
+                            handleOptionsToggle(item.id);
+                        }} style={styles.option}>
+                            <MaterialIcons name="delete" size={24} color="black" />
+                            <Text style={styles.optionText}>Supprimer</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
             </View>
         );
     };
 
     return (
-        <View style={{width:'100%', height:'100%', backgroundColor: '#FFFFFF'}}>
-            <View style={{marginTop: 20}}>
+        <View style={{ width: '100%', height: '100%', backgroundColor: '#FFFFFF' }}>
+            <View style={{ marginTop: 20 }}>
                 <Text style={styles.title}>Mes enfants</Text>
                 <FlatList
                     data={childrenData}
@@ -130,7 +136,7 @@ const Enfants = ({ navigation }) => {
                 {childrenData.length < 3 && (
                     <View>
                         <TouchableOpacity
-                            style={{ flexDirection: "row", justifyContent: 'flex-end', marginRight: 20, marginTop: 350 }}
+                            style={styles.floatingButton}
                             onPress={() => navigation.navigate('AddChild')}
                         >
                             <AntDesign name="pluscircle" color={"#242F65"} size={50} />

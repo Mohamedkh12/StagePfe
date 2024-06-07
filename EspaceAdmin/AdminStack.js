@@ -61,10 +61,10 @@ const ActiveExercice= () => {
     return (
         <Stack.Navigator>
             <Stack.Screen name="Classes" component={Classes} options={{headerShown: false, gestureEnabled: false,}}/>
+            <Stack.Screen name={'AddActiveExercices'} component={AddActiveExercices} options={{ headerShown: false, gestureEnabled: false, }}/>
             <Stack.Screen name="CategoryActiveExercices" component={CategoryActiveExercices} options={{headerShown: false, gestureEnabled: false,}}/>
             <Stack.Screen name="SubCategoryActiveExercice" component={SubCategoryActiveExercice} options={{headerShown: false, gestureEnabled: false,}}/>
             <Stack.Screen name="ShowExercice" component={ShowExercice} options={{headerShown: false, gestureEnabled: false,}}/>
-            <Stack.Screen name={'AddActiveExercices'} component={AddActiveExercices} options={{ headerShown: false, gestureEnabled: false, }}/>
             <Stack.Screen name={'EditActiveExercice'} component={EditActiveExercice} options={{ headerShown: false }}/>
         </Stack.Navigator>
     )

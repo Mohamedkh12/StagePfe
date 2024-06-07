@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { axiosProvider } from '../../http/httpService';
 import { View, Text, ActivityIndicator, FlatList, TouchableOpacity, SafeAreaView, RefreshControl } from 'react-native';
 import styles from "../Exercices/ClassScreen.Styles";
-
+import {AntDesign} from "@expo/vector-icons";
 const Classes = ({ navigation }) => {
     const [classes, setClasses] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -68,6 +68,12 @@ const Classes = ({ navigation }) => {
                         }
                     />
                 )}
+                <TouchableOpacity
+                    style={styles.iconAdd}
+                    onPress={() => navigation.navigate('AddActiveExercices')}
+                >
+                    <AntDesign name="pluscircle" color={"#242F65"} size={50}  />
+                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );

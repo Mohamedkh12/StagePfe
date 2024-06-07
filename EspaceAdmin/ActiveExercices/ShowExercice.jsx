@@ -18,9 +18,7 @@ import styles from "../../EspaceparentEnfants/styles";
 import {AntDesign, Ionicons, MaterialCommunityIcons, MaterialIcons} from "@expo/vector-icons";
 
 const ShowExercice = ({route,navigation}) => {
-    const { selectedCategory } = route.params;
-    const { selectedSubCategory } = route.params;
-    const { selectedClass } = route.params;
+    const { selectedClass,selectedCategory,selectedSubCategory } = route.params;
     const [refreshing, setRefreshing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [showOptions, setShowOptions] = useState(null);
@@ -46,12 +44,11 @@ const ShowExercice = ({route,navigation}) => {
     }, [selectedCategory]);
     const handleSwitchChange = async (exerciseId, currentStatus) => {
         try {
-            // Mettre à jour l'état de l'exercice dans la base de données
+            // Définir le nouveau statut
             const newStatus = currentStatus === '1' ? '0' : '1';
-            const response = await axiosProvider.patch('exercises/changeExerciseStatus', {
-                exerciseId: exerciseId,
-                newStatus: newStatus,
-            });
+            
+            // Mettre à jour l'état de l'exercice dans la base de données
+            const response = await axiosProvider.patch(`exercises/changeExerciseStatus?exerciseId=${exerciseId}&newStatus=${newStatus}`);
 
             // Mettre à jour l'état local de l'exercice
             setExercises(prevExercises =>
@@ -59,12 +56,12 @@ const ShowExercice = ({route,navigation}) => {
                     exercise.id === exerciseId ? { ...exercise, active: newStatus } : exercise
                 )
             );
-
-            console.log(`Statut de l'exercice mis à jour : ${newStatus}`);
+            
         } catch (error) {
             console.error(`Erreur lors du changement de statut de l'exercice :`, error);
         }
     };
+
     const onRefresh = useCallback(() => {
         setRefreshing(true);
         fetchExercisesByCategory();
@@ -178,7 +175,7 @@ const ShowExercice = ({route,navigation}) => {
             />
             <TouchableOpacity
                 style={style.iconAdd}
-                onPress={() => navigation.navigate('AddExercices')}
+                onPress={() => navigation.navigate('AddActiveExercices')}
             >
                 <AntDesign name="pluscircle" color={"#242F65"} size={50}  />
             </TouchableOpacity>
